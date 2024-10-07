@@ -68,16 +68,16 @@ export class UserService {
     const user = await this.findOneById(id);
     if (!user) throw new NotFoundException('User not found');
 
-    user.name = data.name;
-    user.email = data.email;
-    user.role = data.role;
-    user.status = data.status;
-    user.zipcode = data.zipcode;
-    user.phone = data.phone;
-    user.prefecture = data.prefecture;
-    user.city = data.city;
-    user.street = data.street;
-    user.building = data.building;
+    user.name = data.name ? data.name : user.name;
+    user.email = data.email ? data.email : user.email;
+    user.role = data.role ? data.role : user.role;
+    user.status = data.status ? data.status : user.status;
+    user.zipcode = data.zipcode ? data.zipcode : user.zipcode;
+    user.phone = data.phone ? data.phone : user.phone;
+    user.prefecture = data.prefecture ? data.prefecture : user.prefecture;
+    user.city = data.city ? data.city : user.city;
+    user.street = data.street ? data.street : user.street;
+    user.building = data.building ? data.building : user.building;
 
     const userUpdate = await this.usersRepository.save(user);
     const resUser = await this.fillterAttributesUser(userUpdate);

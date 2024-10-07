@@ -4,9 +4,11 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { envs } from './config/envs';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('webAPI')
@@ -25,6 +27,7 @@ async function bootstrap() {
   };
 
   app.enableCors(corsOptions);
+  app.useStaticAssets(join(__dirname, '..', 'uploads'));
 
   await app.listen(8000);
 

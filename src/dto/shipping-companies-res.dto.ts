@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 
-export class UserResDto {
+export class ShippingCompaniesResDto {
   @ApiProperty()
   @IsString()
   id?: string;
@@ -16,31 +15,13 @@ export class UserResDto {
   email?: string;
 
   @ApiProperty()
-  role?: ValidRoles;
-
-  @ApiProperty()
-  status?: number;
-
-  @ApiProperty()
-  zipcode?: string;
-
-  @ApiProperty()
   phone?: string;
 
   @ApiProperty()
-  prefecture?: string;
+  url?: string;
 
   @ApiProperty()
-  city?: string;
-
-  @ApiProperty()
-  street?: string;
-
-  @ApiProperty()
-  building?: string;
-
-  @ApiProperty()
-  tokens?: string;
+  memo?: string;
 
   @ApiProperty()
   createdDate?: Date;

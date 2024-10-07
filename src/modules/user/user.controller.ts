@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +20,10 @@ import { PostNameDto } from 'src/dto/post-name.dto';
 import { PostEmailDto } from 'src/dto/post-email.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
+import { PaginationDto } from 'src/dto/pagination.dto';
+import { RolesGuard } from '../auth/guards/roles/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -36,10 +41,30 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Get()
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Get()
   getUsers(): Promise<UserResDto[]> {
     return this.usersService.findAll();
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Get users successfully',
+    type: UserResDto,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get('page')
+  getUsersPage(@Query() paginationDto: PaginationDto): Promise<UserResDto[]> {
+    return this.usersService.findAllWithPagination(paginationDto);
   }
 
   @ApiResponse({
@@ -51,8 +76,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Get('account')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Get('account')
   getUser(@Query() { id }: GetAccountDto): Promise<UserResDto> {
     return this.usersService.findOneByUser(id);
   }
@@ -66,8 +93,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Post('update/username')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Put('update/username')
   updateUsername(
     @Query() { id }: GetAccountDto,
     @Body() dataDto: PostNameDto,
@@ -84,8 +113,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Post('update/email')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Put('update/email')
   updateEmail(
     @Query() { id }: GetAccountDto,
     @Body() dataDto: PostEmailDto,
@@ -102,8 +133,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Post('update/user')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Put('update/user')
   updateUser(
     @Query() { id }: GetAccountDto,
     @Body() data: UserDto,
@@ -120,8 +153,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Delete('delete/user')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Delete('delete/item')
   deleteUser(@Query() { id }: GetAccountDto): Promise<DeleteUserResDto> {
     return this.usersService.deleteUser(id);
   }
@@ -135,8 +170,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Delete('delete/users')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Delete('delete/items')
   deleteUsers(@Body() dataDto: GetAccountDto[]): Promise<DeleteUsersResDto> {
     return this.usersService.deleteUsers(dataDto);
   }
@@ -150,8 +187,10 @@ export class UserController {
     status: 401,
     description: 'Not found',
   })
-  @Post('register/user')
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @Post('register/user')
   async registerUser(@Body() registerDto: RegisterDto): Promise<UserResDto> {
     return await this.usersService.registerUser(registerDto);
   }

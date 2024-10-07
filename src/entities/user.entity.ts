@@ -1,4 +1,5 @@
 import { IsEmail } from 'class-validator';
+import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import {
   BaseEntity,
   Column,
@@ -10,23 +11,27 @@ import {
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   @IsEmail()
   email: string;
 
-  @Column({ default: 0 })
-  role: number;
+  @Column({
+    type: 'enum',
+    enum: ValidRoles,
+    default: ValidRoles.User,
+  })
+  role: ValidRoles;
 
-  @Column({ default: null })
+  @Column({ default: null, nullable: true, length: 255 })
   name: string;
 
-  @Column({ default: null, nullable: true })
+  @Column({ default: null, nullable: true, length: 8 })
   zipcode: string;
 
-  @Column({ default: null, nullable: true })
+  @Column({ default: null, nullable: true, length: 12 })
   phone: string;
 
   @Column({ default: null, nullable: true })
@@ -44,7 +49,7 @@ export class UserEntity extends BaseEntity {
   @Column()
   encrypted_password: string;
 
-  @Column({ default: 0 })
+  @Column({ type: 'int', default: 0 })
   status: number;
 
   @Column({ default: null, nullable: true })
@@ -53,7 +58,7 @@ export class UserEntity extends BaseEntity {
   @Column({ default: null, nullable: true })
   last_sign_in_at: Date;
 
-  @Column({ default: null, nullable: true })
+  @Column({ type: 'text', default: null, nullable: true })
   tokens: string;
 
   @Column({ default: null, nullable: true })

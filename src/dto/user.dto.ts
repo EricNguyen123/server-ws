@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
+import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 
 export class UserDto {
   @ApiProperty()
@@ -22,7 +23,7 @@ export class UserDto {
   encrypted_password?: string;
 
   @ApiProperty()
-  role?: number;
+  role?: ValidRoles;
 
   @ApiProperty()
   status?: number;
@@ -47,10 +48,4 @@ export class UserDto {
 
   @ApiProperty()
   tokens?: string;
-
-  @ApiProperty()
-  createdDate?: Date;
-
-  @ApiProperty()
-  updatedDate?: Date;
 }
