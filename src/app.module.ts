@@ -11,12 +11,13 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ActiveStorageModule } from './modules/active-storage/active-storage.module';
+import { redisConfig } from './config/redis/redis.config';
 
 @Module({
   imports: [
     RedisModule.forRoot({
       type: 'single',
-      url: 'redis://localhost:6379',
+      url: `redis://${redisConfig.host}:${redisConfig.port}`,
     }),
     DatabaseConfigModule,
     AuthModule,

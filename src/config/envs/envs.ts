@@ -12,6 +12,8 @@ interface EnvConfig {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_CALLBACK_URL: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
 }
 
 const envVarsSchema = joi
@@ -26,6 +28,8 @@ const envVarsSchema = joi
     GOOGLE_CLIENT_ID: joi.string().required(),
     GOOGLE_CLIENT_SECRET: joi.string().required(),
     GOOGLE_CALLBACK_URL: joi.string().required(),
+    REDIS_HOST: joi.string().required(),
+    REDIS_PORT: joi.number().required(),
   })
   .unknown(true);
 
@@ -48,4 +52,6 @@ export const envs = {
   googleClientId: envVars.GOOGLE_CLIENT_ID,
   googleClientSecret: envVars.GOOGLE_CLIENT_SECRET,
   googleCallbackUrl: envVars.GOOGLE_CALLBACK_URL,
+  redisHost: envVars.REDIS_HOST,
+  redisPort: envVars.REDIS_PORT,
 };

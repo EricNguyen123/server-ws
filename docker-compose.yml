@@ -1,0 +1,57 @@
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: yourmysqlpassword
+      MYSQL_DATABASE: webshop
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - nestjs-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - nestjs-network
+
+  nestjs-app:
+    build: .
+    container_name: nestjs-app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - FE_URL=http://localhost:3000
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=yourmysqlpassword
+      - MYSQL_DB_NAME=webshop
+      - JWT_SECRET=Webshop@123
+      - GOOGLE_CLIENT_ID=
+      - GOOGLE_CLIENT_SECRET=
+      - GOOGLE_CALLBACK_URL=http://localhost:8000/auth/google/callback
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - nestjs-network
+
+networks:
+  nestjs-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
