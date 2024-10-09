@@ -37,8 +37,8 @@ services:
       - MYSQL_PASSWORD=yourmysqlpassword
       - MYSQL_DB_NAME=webshop
       - JWT_SECRET=Webshop@123
-      - GOOGLE_CLIENT_ID=
-      - GOOGLE_CLIENT_SECRET=
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_CALLBACK_URL=http://localhost:8000/auth/google/callback
       - REDIS_HOST=redis
       - REDIS_PORT=6379
