@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as path from 'path';
 import { ActiveStorageAttachmentsEntity } from 'src/entities/active-storage-attachments.entity';
@@ -76,6 +76,37 @@ export class ActiveStorageService {
       blob,
       mediaItem,
     };
+  }
+
+  async deleteFile(blobId: string): Promise<void> {
+    const blob = await this.activeStorageBlobsRepository.findOne({
+      where: { id: blobId },
+    });
+
+    if (!blob) {
+      throw new NotFoundException('File not found');
+    }
+
+    const filePath = path.join('./uploads', blob.key);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    const attachments = await this.activeStorageAttachmentsRepository.find({
+      where: { activeStorageBlob: { id: blobId } },
+      relations: ['activeStorageBlob', 'mediaItem'],
+    });
+
+    await this.activeStorageAttachmentsRepository.delete({
+      activeStorageBlob: blob,
+    });
+    const mediaItemIds = attachments
+      .filter((attachment) => attachment.mediaItem)
+      .map((attachment) => attachment.mediaItem.id);
+
+    if (mediaItemIds.length > 0) {
+      await this.mediaItemsRepository.delete(mediaItemIds);
+    }
+    await this.activeStorageBlobsRepository.delete({ id: blobId });
   }
 
   getUploadedFileUrl(filename: string): string {

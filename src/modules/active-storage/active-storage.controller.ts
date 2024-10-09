@@ -1,5 +1,7 @@
 import {
   Controller,
+  Delete,
+  Param,
   Post,
   Query,
   UploadedFile,
@@ -70,6 +72,25 @@ export class ActiveStorageController {
       fileUrl: this.activeStorageService.getUploadedFileUrl(
         uploadedFile.blob.key,
       ),
+    };
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'File deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'File not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete/:blobId')
+  async deleteFile(@Param('blobId') blobId: string) {
+    await this.activeStorageService.deleteFile(blobId);
+    return {
+      message: 'File deleted successfully',
     };
   }
 }
