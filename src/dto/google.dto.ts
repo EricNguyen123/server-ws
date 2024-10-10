@@ -9,7 +9,7 @@ export class GoogleDto {
   email: string;
 
   @IsString()
-  password: string;
+  encrypted_password: string;
 
   status: number;
 }

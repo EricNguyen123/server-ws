@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -20,6 +21,9 @@ import { LogoutResDto } from 'src/dto/logout-res.dto';
 import { LogoutDto } from 'src/dto/logout.dto';
 import { ChangePasswordResDto } from 'src/dto/change-password-res.dto';
 import { UserResDto } from 'src/dto/user-res.dto';
+import { VerifyMailDto } from 'src/dto/verify-mail.dto';
+import { VerifyMailResDto } from 'src/dto/verify-mail-res.dto';
+import { envs } from 'src/config/envs';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -70,7 +74,7 @@ export class AuthController {
 
     const token = encodeURIComponent(response.token);
     const email = encodeURIComponent(response.user.email);
-    res.redirect(`http://localhost:3000?token=${token}&email=${email}`);
+    res.redirect(`${envs.feUrl}?token=${token}&email=${email}`);
   }
 
   @ApiResponse({
@@ -113,5 +117,20 @@ export class AuthController {
   @Post('update/password')
   updatePassword(@Body() changePasswordDto: ChangePasswordDto) {
     return this.authService.changePassword(changePasswordDto);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Verify email successfully',
+    type: VerifyMailResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Get('verify')
+  async verifyMail(@Query() verifyMailDto: VerifyMailDto, @Res() res) {
+    await this.authService.verifyMail(verifyMailDto);
+    res.redirect(`${envs.feUrl}`);
   }
 }

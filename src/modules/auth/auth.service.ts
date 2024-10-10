@@ -12,10 +12,14 @@ import { ChangePasswordDto } from 'src/dto/change-password.dto';
 import { LoginResDto } from 'src/dto/login-res.dto';
 import { LogoutResDto } from 'src/dto/logout-res.dto';
 import { ChangePasswordResDto } from 'src/dto/change-password-res.dto';
+import { envs } from 'src/config/envs';
+import { VerifyMailDto } from 'src/dto/verify-mail.dto';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly mailService: MailerService,
     private readonly usersService: UserService,
     private readonly jwtService: JwtService,
     @InjectRedis() private readonly redis: Redis,
@@ -26,11 +30,24 @@ export class AuthService {
     const user = await this.usersService.create({
       name: name,
       email: email,
-      encrypted_password: bcrypt.hashSync(password, 10),
+      encrypted_password: bcrypt.hashSync(password, envs.bcryptSaltRound),
     });
     if (!user) {
       throw new UnauthorizedException('Created fail');
     }
+
+    bcrypt.hash(email, envs.bcryptSaltRound).then((hashedEmail) => {
+      this.mailService.sendMail({
+        from: { name: envs.appName, address: envs.mailFromAddress },
+        recipients: [{ name: name, address: email }],
+        subject: 'Welcome to WebShop',
+        html: `
+        <p>
+          <strong>Hi ${name}!</strong>
+          <a href="${envs.appUrl}/auth/verify?email=${email}&token=${hashedEmail}"> Verify </a>
+        </p>`,
+      });
+    });
 
     return user;
   }
@@ -131,7 +148,10 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(googleUser.email);
     if (user) return user;
     const randomPassword = this.generateRandomPassword(10);
-    googleUser.password = bcrypt.hashSync(randomPassword, 10);
+    googleUser.encrypted_password = bcrypt.hashSync(
+      randomPassword,
+      envs.bcryptSaltRound,
+    );
     return await this.usersService.create(googleUser);
   }
 
@@ -149,5 +169,31 @@ export class AuthService {
       password += characters[randomIndex];
     }
     return password;
+  }
+
+  async verifyMail(verifyMailDto: VerifyMailDto) {
+    const { email, token } = verifyMailDto;
+
+    try {
+      const isValidToken = await bcrypt.compare(email, token);
+
+      if (!isValidToken) {
+        return { status: 404, message: 'Not found.', success: false };
+      }
+
+      const user = await this.usersService.findOneByEmail(email);
+
+      if (!user) {
+        return { status: 404, message: 'User not found.', success: false };
+      }
+
+      const updateUser = await this.usersService.updateUser(user.id, {
+        status: 1,
+      });
+
+      return updateUser;
+    } catch (err) {
+      return { status: 500, message: err, success: false };
+    }
   }
 }

@@ -134,4 +134,16 @@ export class ProductsService {
       files,
     };
   }
+
+  async findByIds(ids: string[]): Promise<ProductsEntity[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const entities = await this.productsRepository.find({
+      where: ids.map((id) => ({ id })),
+    });
+
+    return entities;
+  }
 }

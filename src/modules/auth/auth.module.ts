@@ -11,6 +11,8 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { LocalStrategy } from './strategies/local-strategy';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/user.service';
+import { MailerService } from '../mailer/mailer.service';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { UserService } from '../user/user.service';
     }),
     ConfigModule.forFeature(googleOauthConfig),
     UserModule,
+    MailerModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -32,6 +35,7 @@ import { UserService } from '../user/user.service';
     JwtStrategy,
     LocalStrategy,
     GoogleStrategy,
+    MailerService,
   ],
   exports: [JwtStrategy, PassportModule, JwtModule],
 })

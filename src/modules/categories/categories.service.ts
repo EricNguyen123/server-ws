@@ -127,4 +127,16 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
   }
+
+  async findByIds(ids: string[]): Promise<CategoriesEntity[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const entities = await this.categoriesRepository.find({
+      where: ids.map((id) => ({ id })),
+    });
+
+    return entities;
+  }
 }

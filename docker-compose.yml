@@ -30,18 +30,28 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FE_URL=http://localhost:3000
+      - APP_NAME=${APP_NAME}
+      - APP_URL=${APP_URL}
+      - FE_URL=${FE_URL}
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=yourmysqlpassword
       - MYSQL_DB_NAME=webshop
-      - JWT_SECRET=Webshop@123
+      - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_CALLBACK_URL=http://localhost:8000/auth/google/callback
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - BCRYPT_SALT_ROUND=${BCRYPT_SALT_ROUND}
     depends_on:
       - mysql
       - redis

@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CategoryTinyEntity } from './category-tinies.entity';
 
 @Entity('categories')
 export class CategoriesEntity extends BaseEntity {
@@ -27,6 +28,15 @@ export class CategoriesEntity extends BaseEntity {
     cascade: true,
   })
   subCategories: CategoriesEntity[];
+
+  @OneToMany(
+    () => CategoryTinyEntity,
+    (categoryTinies) => categoryTinies.category,
+    {
+      cascade: true,
+    },
+  )
+  categoryTinies: CategoryTinyEntity[];
 
   @CreateDateColumn()
   createdDate: Date;

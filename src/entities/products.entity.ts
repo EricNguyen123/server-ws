@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { MediaItemsEntity } from './media_items.entity';
+import { CategoryTinyEntity } from './category-tinies.entity';
 
 @Entity('products')
 export class ProductsEntity extends BaseEntity {
@@ -52,4 +53,13 @@ export class ProductsEntity extends BaseEntity {
 
   @OneToMany(() => MediaItemsEntity, (mediaItem) => mediaItem.product)
   mediaItems: MediaItemsEntity[];
+
+  @OneToMany(
+    () => CategoryTinyEntity,
+    (categoryTinies) => categoryTinies.product,
+    {
+      cascade: true,
+    },
+  )
+  categoryTinies: CategoryTinyEntity[];
 }

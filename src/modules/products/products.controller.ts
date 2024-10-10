@@ -42,7 +42,7 @@ export class ProductsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post()
-  postBanner(
+  postProduct(
     @Body() productsPostDto: ProductsPostDto,
   ): Promise<ProductsResDto> {
     return this.productsService.create(productsPostDto);
