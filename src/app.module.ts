@@ -14,6 +14,7 @@ import { ActiveStorageModule } from './modules/active-storage/active-storage.mod
 import { redisConfig } from './config/redis/redis.config';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { CategoryTiniesModule } from './modules/category-tinies/category-tinies.module';
+import { DiscountSettingsModule } from './modules/discount-settings/discount-settings.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CategoryTiniesModule } from './modules/category-tinies/category-tinies.
     ProductsModule,
     ActiveStorageModule,
     CategoryTiniesModule,
+    DiscountSettingsModule,
     DatabaseModule,
     MailerModule,
   ],

@@ -78,7 +78,7 @@ export class ProductsController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('page')
@@ -98,7 +98,7 @@ export class ProductsController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get()

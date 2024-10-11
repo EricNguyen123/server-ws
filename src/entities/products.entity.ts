@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { MediaItemsEntity } from './media_items.entity';
 import { CategoryTinyEntity } from './category-tinies.entity';
+import { DiscountSettingsEntity } from './discount-settings.entity';
 
 @Entity('products')
 export class ProductsEntity extends BaseEntity {
@@ -62,4 +63,13 @@ export class ProductsEntity extends BaseEntity {
     },
   )
   categoryTinies: CategoryTinyEntity[];
+
+  @OneToMany(
+    () => DiscountSettingsEntity,
+    (discountSettings) => discountSettings.product,
+    {
+      cascade: true,
+    },
+  )
+  discountSettings: DiscountSettingsEntity[];
 }

@@ -81,6 +81,12 @@ export class ProductsService {
     try {
       const item = await this.productsRepository.findOneOrFail({
         where: { id },
+        relations: [
+          'mediaItems',
+          'mediaItems.activeStorageAttachments',
+          'mediaItems.activeStorageAttachments.activeStorageBlob',
+          'discountSettings',
+        ],
       });
 
       return item;
@@ -99,11 +105,24 @@ export class ProductsService {
     return await this.productsRepository.find({
       skip: offset,
       take: limit,
+      relations: [
+        'mediaItems',
+        'mediaItems.activeStorageAttachments',
+        'mediaItems.activeStorageAttachments.activeStorageBlob',
+        'discountSettings',
+      ],
     });
   }
 
   async findAll(): Promise<ProductsEntity[]> {
-    return await this.productsRepository.find({});
+    return await this.productsRepository.find({
+      relations: [
+        'mediaItems',
+        'mediaItems.activeStorageAttachments',
+        'mediaItems.activeStorageAttachments.activeStorageBlob',
+        'discountSettings',
+      ],
+    });
   }
 
   async findProductWithFiles(productId: string) {
@@ -113,6 +132,7 @@ export class ProductsService {
         'mediaItems',
         'mediaItems.activeStorageAttachments',
         'mediaItems.activeStorageAttachments.activeStorageBlob',
+        'discountSettings',
       ],
     });
 

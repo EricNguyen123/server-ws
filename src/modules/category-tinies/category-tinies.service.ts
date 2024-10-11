@@ -159,4 +159,18 @@ export class CategoryTiniesService {
       message: 'CategoryTinies deleted successfully',
     };
   }
+
+  async findProductByCategoryId(categoryId: string) {
+    const category = await this.categoriesService.findOneByCategory(categoryId);
+    if (!category) {
+      throw new NotFoundException(
+        `Category with id "${categoryId}" not found.`,
+      );
+    }
+    const products = await this.categorytiniesRepository.find({
+      where: { category: { id: categoryId } },
+      relations: ['product'],
+    });
+    return products.map((categoryTiny) => categoryTiny.product);
+  }
 }
