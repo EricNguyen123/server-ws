@@ -22,8 +22,8 @@ import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 
 @ApiBearerAuth()
-@ApiTags('shippingcompanies')
-@Controller('shippingcompanies')
+@ApiTags('shippingCompanies')
+@Controller('shipping_companies')
 export class ShippingCompaniesController {
   constructor(
     private readonly shippingCompaniesService: ShippingCompaniesService,

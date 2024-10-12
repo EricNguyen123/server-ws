@@ -10,6 +10,7 @@ import {
 import { MediaItemsEntity } from './media_items.entity';
 import { CategoryTinyEntity } from './category-tinies.entity';
 import { DiscountSettingsEntity } from './discount-settings.entity';
+import { ProductResourceEntity } from './product-resources.entity';
 
 @Entity('products')
 export class ProductsEntity extends BaseEntity {
@@ -72,4 +73,13 @@ export class ProductsEntity extends BaseEntity {
     },
   )
   discountSettings: DiscountSettingsEntity[];
+
+  @OneToMany(
+    () => ProductResourceEntity,
+    (productResources) => productResources.product,
+    {
+      cascade: true,
+    },
+  )
+  productResources: ProductResourceEntity[];
 }

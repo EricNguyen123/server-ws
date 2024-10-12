@@ -21,7 +21,7 @@ import { ProductsResDto } from 'src/dto/products-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('categoryTinies')
-@Controller('categorytinies')
+@Controller('category_tinies')
 export class CategoryTiniesController {
   constructor(private readonly categoryTiniesService: CategoryTiniesService) {}
 

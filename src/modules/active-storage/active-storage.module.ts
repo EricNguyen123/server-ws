@@ -6,6 +6,7 @@ import { ActiveStorageBlobsEntity } from 'src/entities/active-storage-blobs.enti
 import { ActiveStorageAttachmentsEntity } from 'src/entities/active-storage-attachments.entity';
 import { ProductsEntity } from 'src/entities/products.entity';
 import { MediaItemsEntity } from 'src/entities/media_items.entity';
+import { BannersEntity } from 'src/entities/banners.entity';
 
 @Module({
   imports: [
@@ -14,9 +15,20 @@ import { MediaItemsEntity } from 'src/entities/media_items.entity';
       ActiveStorageAttachmentsEntity,
       MediaItemsEntity,
       ProductsEntity,
+      BannersEntity,
     ]),
   ],
   controllers: [ActiveStorageController],
   providers: [ActiveStorageService],
+  exports: [
+    TypeOrmModule.forFeature([
+      ActiveStorageBlobsEntity,
+      ActiveStorageAttachmentsEntity,
+      MediaItemsEntity,
+      ProductsEntity,
+      BannersEntity,
+    ]),
+    ActiveStorageService,
+  ],
 })
 export class ActiveStorageModule {}

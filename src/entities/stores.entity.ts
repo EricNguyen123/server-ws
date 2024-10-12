@@ -5,9 +5,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ProductResourceEntity } from './product-resources.entity';
 
 @Entity('stores')
 export class StoreEntity extends BaseEntity {
@@ -44,4 +46,13 @@ export class StoreEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToMany(
+    () => ProductResourceEntity,
+    (productResources) => productResources.product,
+    {
+      cascade: true,
+    },
+  )
+  productResources: ProductResourceEntity[];
 }

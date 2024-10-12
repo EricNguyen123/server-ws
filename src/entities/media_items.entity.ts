@@ -3,7 +3,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,6 +10,7 @@ import {
 } from 'typeorm';
 import { ActiveStorageAttachmentsEntity } from './active-storage-attachments.entity';
 import { ProductsEntity } from './products.entity';
+import { BannersEntity } from './banners.entity';
 
 @Entity('media_items')
 export class MediaItemsEntity extends BaseEntity {
@@ -41,6 +41,10 @@ export class MediaItemsEntity extends BaseEntity {
   @ManyToOne(() => ProductsEntity, (product) => product.mediaItems, {
     nullable: true,
   })
-  @JoinColumn({ name: 'resource_id' })
   product: ProductsEntity;
+
+  @ManyToOne(() => BannersEntity, (banner) => banner.mediaItems, {
+    nullable: true,
+  })
+  banner: BannersEntity;
 }

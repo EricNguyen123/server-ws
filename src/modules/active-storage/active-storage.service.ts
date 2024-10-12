@@ -9,6 +9,8 @@ import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { KeyTypes } from 'src/common/enums/key-types.enum';
 import * as fs from 'fs';
+import { BannersEntity } from 'src/entities/banners.entity';
+import { envs } from 'src/config/envs';
 
 @Injectable()
 export class ActiveStorageService {
@@ -21,6 +23,8 @@ export class ActiveStorageService {
     private productsRepository: Repository<ProductsEntity>,
     @InjectRepository(MediaItemsEntity)
     private readonly mediaItemsRepository: Repository<MediaItemsEntity>,
+    @InjectRepository(BannersEntity)
+    private readonly bannersRepository: Repository<BannersEntity>,
   ) {}
 
   async uploadFile(file: Express.Multer.File, id: string, key: string) {
@@ -32,6 +36,10 @@ export class ActiveStorageService {
     let item;
     if (useKey === KeyTypes.Product) {
       item = await this.productsRepository.findOne({
+        where: { id: id },
+      });
+    } else if (useKey === KeyTypes.Banner) {
+      item = await this.bannersRepository.findOne({
         where: { id: id },
       });
     }
@@ -60,6 +68,8 @@ export class ActiveStorageService {
 
     if (useKey === KeyTypes.Product) {
       mediaItem.product = item;
+    } else if (useKey === KeyTypes.Banner) {
+      mediaItem.banner = item;
     }
 
     await this.mediaItemsRepository.save(mediaItem);
@@ -110,7 +120,7 @@ export class ActiveStorageService {
   }
 
   getUploadedFileUrl(filename: string): string {
-    return `/uploads/${filename}`;
+    return `${envs.appUrl}/${filename}`;
   }
 
   isValidKeyType(key: string) {

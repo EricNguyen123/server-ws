@@ -16,6 +16,7 @@ import { MailerModule } from './modules/mailer/mailer.module';
 import { CategoryTiniesModule } from './modules/category-tinies/category-tinies.module';
 import { DiscountSettingsModule } from './modules/discount-settings/discount-settings.module';
 import { StoresModule } from './modules/stores/stores.module';
+import { ProductResourcesModule } from './modules/product-resources/product-resources.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { StoresModule } from './modules/stores/stores.module';
     StoresModule,
     DatabaseModule,
     MailerModule,
+    ProductResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -55,4 +55,45 @@ export class BannersService {
     });
     return banners;
   }
+
+  async update(id: string, bannersDto: BannersPostDto) {
+    const banner = await this.bannersRepository.findOne({ where: { id } });
+
+    if (!banner) {
+      throw new NotFoundException(`Banner with ID "${id}" not found`);
+    }
+
+    Object.assign(banner, bannersDto);
+    const updateBanner = await this.bannersRepository.save(banner);
+    return updateBanner;
+  }
+
+  async findBannerWithFiles(bannerId: string) {
+    const banner = await this.bannersRepository.findOne({
+      where: { id: bannerId },
+      relations: [
+        'mediaItems',
+        'mediaItems.activeStorageAttachments',
+        'mediaItems.activeStorageAttachments.activeStorageBlob',
+      ],
+    });
+
+    if (!banner) {
+      throw new Error('Banner not found');
+    }
+
+    const files = banner.mediaItems.flatMap((mediaItem) =>
+      mediaItem.activeStorageAttachments.map((attachment) => ({
+        id: attachment.activeStorageBlob.id,
+        url: `/uploads/${attachment.activeStorageBlob.key}`,
+        filename: attachment.activeStorageBlob.filename,
+        contentType: attachment.activeStorageBlob.content_type,
+      })),
+    );
+
+    return {
+      banner,
+      files,
+    };
+  }
 }

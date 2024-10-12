@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { MediaItemsEntity } from './media_items.entity';
 
 @Entity('banners')
 export class BannersEntity extends BaseEntity {
@@ -34,4 +36,7 @@ export class BannersEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToMany(() => MediaItemsEntity, (mediaItem) => mediaItem.banner)
+  mediaItems: MediaItemsEntity[];
 }
