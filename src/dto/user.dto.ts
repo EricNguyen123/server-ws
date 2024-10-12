@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
+import { Status } from 'src/common/enums/status.enum';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 
 export class UserDto {
@@ -26,7 +27,7 @@ export class UserDto {
   role?: ValidRoles;
 
   @ApiProperty()
-  status?: number;
+  status?: Status;
 
   @ApiProperty()
   zipcode?: string;
@@ -45,6 +46,12 @@ export class UserDto {
 
   @ApiProperty()
   building?: string;
+
+  @ApiProperty()
+  current_sign_in_at?: Date;
+
+  @ApiProperty()
+  last_sign_in_at?: Date;
 
   @ApiProperty()
   tokens?: string;

@@ -136,7 +136,7 @@ export class UserController {
   @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Put('update/user')
+  @Put('update/account')
   updateUser(
     @Query() { id }: GetAccountDto,
     @Body() data: UserDto,

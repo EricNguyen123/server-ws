@@ -78,6 +78,13 @@ export class UserService {
     user.city = data.city ? data.city : user.city;
     user.street = data.street ? data.street : user.street;
     user.building = data.building ? data.building : user.building;
+    user.current_sign_in_at = data.current_sign_in_at
+      ? data.current_sign_in_at
+      : user.current_sign_in_at;
+    user.last_sign_in_at = data.last_sign_in_at
+      ? data.last_sign_in_at
+      : user.last_sign_in_at;
+    user.tokens = data.tokens;
 
     const userUpdate = await this.usersRepository.save(user);
     const resUser = await this.fillterAttributesUser(userUpdate);
@@ -148,7 +155,8 @@ export class UserService {
         'city',
         'street',
         'building',
-        'tokens',
+        'current_sign_in_at',
+        'last_sign_in_at',
         'createdDate',
         'updatedDate',
       ],
@@ -169,7 +177,8 @@ export class UserService {
         'city',
         'street',
         'building',
-        'tokens',
+        'current_sign_in_at',
+        'last_sign_in_at',
         'createdDate',
         'updatedDate',
       ],
@@ -203,12 +212,20 @@ export class UserService {
     }
   }
 
+  async findOneByTokens(tokens: string): Promise<UserEntity> {
+    try {
+      return await this.usersRepository.findOneOrFail({ where: { tokens } });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
   async fillterAttributesUser(user: UserEntity) {
     delete user.encrypted_password;
-    delete user.current_sign_in_at;
-    delete user.last_sign_in_at;
     delete user.provider;
     delete user.uid;
+    delete user.tokens;
     return user;
   }
 }

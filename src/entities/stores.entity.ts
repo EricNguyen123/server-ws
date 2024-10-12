@@ -1,6 +1,5 @@
 import { IsEmail } from 'class-validator';
 import { Status } from 'src/common/enums/status.enum';
-import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import {
   BaseEntity,
   Column,
@@ -10,8 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('users')
-export class UserEntity extends BaseEntity {
+@Entity('stores')
+export class StoreEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -19,21 +18,11 @@ export class UserEntity extends BaseEntity {
   @IsEmail()
   email: string;
 
-  @Column({
-    type: 'enum',
-    enum: ValidRoles,
-    default: ValidRoles.User,
-  })
-  role: ValidRoles;
-
   @Column({ default: null, nullable: true, length: 255 })
   name: string;
 
-  @Column({ default: null, nullable: true, length: 8 })
-  zipcode: string;
-
-  @Column({ default: null, nullable: true, length: 12 })
-  phone: string;
+  @Column({ length: 8 })
+  postcode: string;
 
   @Column({ default: null, nullable: true })
   prefecture: string;
@@ -47,26 +36,8 @@ export class UserEntity extends BaseEntity {
   @Column({ default: null, nullable: true })
   building: string;
 
-  @Column()
-  encrypted_password: string;
-
   @Column({ type: 'enum', enum: Status, default: Status.NotActive })
   status: Status;
-
-  @Column({ default: null, nullable: true })
-  current_sign_in_at: Date;
-
-  @Column({ default: null, nullable: true })
-  last_sign_in_at: Date;
-
-  @Column({ type: 'text', default: null, nullable: true })
-  tokens: string;
-
-  @Column({ default: null, nullable: true })
-  provider: string;
-
-  @Column({ default: null, nullable: true })
-  uid: string;
 
   @CreateDateColumn()
   createdDate: Date;

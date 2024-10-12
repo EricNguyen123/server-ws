@@ -4,6 +4,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import googleOauthConfig from 'src/config/oauth/google-oauth.config';
+import { Status } from 'src/common/enums/status.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -31,7 +32,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       email: profile.emails[0].value,
       name: profile.name.givenName + profile.name.familyName,
       encrypted_password: '',
-      status: 1,
+      status: Status.Active,
+      provider: profile.provider,
+      uid: profile.id,
     });
     // done(null, user);
     return user;

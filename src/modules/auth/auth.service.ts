@@ -15,6 +15,7 @@ import { ChangePasswordResDto } from 'src/dto/change-password-res.dto';
 import { envs } from 'src/config/envs';
 import { VerifyMailDto } from 'src/dto/verify-mail.dto';
 import { MailerService } from '../mailer/mailer.service';
+import { Status } from 'src/common/enums/status.enum';
 
 @Injectable()
 export class AuthService {
@@ -72,7 +73,11 @@ export class AuthService {
     }
 
     const token = this.getJwtToken(user.id);
-    const resUser = await this.usersService.fillterAttributesUser(user);
+    const updateUser = await this.usersService.updateUser(user.id, {
+      tokens: token,
+      current_sign_in_at: new Date(),
+    });
+    const resUser = await this.usersService.fillterAttributesUser(updateUser);
 
     return {
       user: resUser,
@@ -86,7 +91,11 @@ export class AuthService {
       throw new UnauthorizedException('Credentials not valid');
     }
     const token = this.getJwtToken(user.id);
-    const resUser = await this.usersService.fillterAttributesUser(user);
+    const updateUser = await this.usersService.updateUser(user.id, {
+      tokens: token,
+      current_sign_in_at: new Date(),
+    });
+    const resUser = await this.usersService.fillterAttributesUser(updateUser);
     return {
       user: resUser,
       token,
@@ -103,6 +112,19 @@ export class AuthService {
     const ttl = decodedToken.exp - Math.floor(Date.now() / 1000);
 
     await this.redis.set(`blacklist:${token}`, 'true', 'EX', ttl);
+
+    const user = await this.usersService.findOneByTokens(token);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const updateUser = await this.usersService.updateUser(user.id, {
+      tokens: null,
+      last_sign_in_at: new Date(),
+    });
+    if (!updateUser) {
+      throw new UnauthorizedException('Update user fail');
+    }
+
     return { status: 200, message: 'Logout successful' };
   }
 
@@ -188,7 +210,7 @@ export class AuthService {
       }
 
       const updateUser = await this.usersService.updateUser(user.id, {
-        status: 1,
+        status: Status.Active,
       });
 
       return updateUser;
