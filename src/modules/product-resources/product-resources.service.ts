@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteProductResourceResDto } from 'src/dto/delete-product-resource-res.dto';
 import { ProductResourceDto } from 'src/dto/product-resource.dto';
 import { ProductResourceEntity } from 'src/entities/product-resources.entity';
 import { Repository } from 'typeorm';
 import { ProductsService } from '../products/products.service';
 import { StoresService } from '../stores/stores.service';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 
 @Injectable()
 export class ProductResourcesService {
@@ -84,7 +84,7 @@ export class ProductResourcesService {
     return await this.productResourcesRepository.save(productResource);
   }
 
-  async delete(id: string): Promise<DeleteProductResourceResDto> {
+  async delete(id: string): Promise<DeleteItemResDto> {
     const result = await this.productResourcesRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Product resource not found');

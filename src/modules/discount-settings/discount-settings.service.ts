@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { ProductsService } from '../products/products.service';
 import { DiscountSettingsDto } from 'src/dto/discount-settings.dto';
 import { DiscountSettingsUpdateDto } from 'src/dto/discount-settings-update.dto';
-import { DiscountSettingsDeleteDto } from 'src/dto/discount-settings-delete.dto';
 import { DiscountSettingsFindDto } from 'src/dto/discount-settings-find.dto';
 
 @Injectable()
@@ -61,12 +60,10 @@ export class DiscountSettingsService {
     return await this.discountSettingsRepository.save(discountSetings);
   }
 
-  async deleteDiscountSettings(
-    discountSettingsDeleteDto: DiscountSettingsDeleteDto,
-  ) {
+  async deleteDiscountSettings(id: string) {
     const discountSetings = await this.discountSettingsRepository.findOneOrFail(
       {
-        where: { id: discountSettingsDeleteDto.id },
+        where: { id: id },
       },
     );
 

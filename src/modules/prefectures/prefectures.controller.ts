@@ -8,29 +8,27 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProductResourcesService } from './product-resources.service';
+import { PrefecturesService } from './prefectures.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
-import { ProductResourceResDto } from 'src/dto/product-resource-res.dto';
-import { ProductResourceDto } from 'src/dto/product-resource.dto';
+import { PrefecturesResDto } from 'src/dto/prefectures-res.dto';
+import { PrefecturesDto } from 'src/dto/prefectures.dto';
 import { GetAccountDto } from 'src/dto/get-account.dto';
 import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 
 @ApiBearerAuth()
-@ApiTags('productResources')
-@Controller('product_resources')
-export class ProductResourcesController {
-  constructor(
-    private readonly productResourcesService: ProductResourcesService,
-  ) {}
+@ApiTags('prefectures')
+@Controller('prefectures')
+export class PrefecturesController {
+  constructor(private readonly prefecturesService: PrefecturesService) {}
 
   @ApiResponse({
     status: 201,
-    description: 'Get all product resources successfully',
-    type: ProductResourceResDto,
+    description: 'Get all prefectures successfully',
+    type: PrefecturesResDto,
     isArray: true,
   })
   @ApiResponse({
@@ -41,14 +39,14 @@ export class ProductResourcesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get()
-  getProductResources(): Promise<ProductResourceResDto[]> {
-    return this.productResourcesService.findAll();
+  getPrefectures(): Promise<PrefecturesResDto[]> {
+    return this.prefecturesService.findAll();
   }
 
   @ApiResponse({
     status: 201,
-    description: 'Post product resource successfully',
-    type: ProductResourceResDto,
+    description: 'Post prefectures successfully',
+    type: PrefecturesResDto,
   })
   @ApiResponse({
     status: 401,
@@ -58,15 +56,35 @@ export class ProductResourcesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post()
-  postProductResource(
-    @Body() dataDto: ProductResourceDto,
-  ): Promise<ProductResourceResDto> {
-    return this.productResourcesService.create(dataDto);
+  postPrefecture(
+    @Body() prefecturesDto: PrefecturesDto,
+  ): Promise<PrefecturesResDto> {
+    return this.prefecturesService.createItem(prefecturesDto);
   }
 
   @ApiResponse({
     status: 201,
-    description: 'Delete product resource successfully',
+    description: 'Update prefectures successfully',
+    type: PrefecturesResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Put('update')
+  updatePrefecture(
+    @Query() { id }: GetAccountDto,
+    @Body() prefecturesDto: PrefecturesDto,
+  ): Promise<PrefecturesResDto> {
+    return this.prefecturesService.updateItem(id, prefecturesDto);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Delete prefectures successfully',
     type: DeleteItemResDto,
   })
   @ApiResponse({
@@ -77,29 +95,7 @@ export class ProductResourcesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete('delete/item')
-  deleteProductResource(
-    @Query() { id }: GetAccountDto,
-  ): Promise<DeleteItemResDto> {
-    return this.productResourcesService.delete(id);
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: 'Post product resource successfully',
-    type: ProductResourceResDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Not found',
-  })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
-  @Put('update')
-  putProductResource(
-    @Query() { id }: GetAccountDto,
-    @Body() dataDto: ProductResourceDto,
-  ): Promise<ProductResourceResDto> {
-    return this.productResourcesService.update(id, dataDto);
+  deletePrefecture(@Query() { id }: GetAccountDto): Promise<DeleteItemResDto> {
+    return this.prefecturesService.deleteItem(id);
   }
 }

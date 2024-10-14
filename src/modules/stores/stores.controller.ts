@@ -16,8 +16,8 @@ import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import { StoresResDto } from 'src/dto/stores-res.dto';
 import { StoresDto } from 'src/dto/stores.dto';
-import { DeleteStoresResDto } from 'src/dto/delete-stores-res.dto';
 import { GetAccountDto } from 'src/dto/get-account.dto';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('stores')
@@ -63,7 +63,7 @@ export class StoresController {
   @ApiResponse({
     status: 201,
     description: 'Delete store successfully',
-    type: DeleteStoresResDto,
+    type: DeleteItemResDto,
   })
   @ApiResponse({
     status: 401,
@@ -73,7 +73,7 @@ export class StoresController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete('delete/item')
-  deleteStore(@Query() { id }: GetAccountDto): Promise<DeleteStoresResDto> {
+  deleteStore(@Query() { id }: GetAccountDto): Promise<DeleteItemResDto> {
     return this.storesService.deleteStore(id);
   }
 
@@ -89,7 +89,7 @@ export class StoresController {
   @Roles(ValidRoles.Admin, ValidRoles.Editor)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Put('update/item')
+  @Put('update')
   putStore(
     @Query() { id }: GetAccountDto,
     @Body() storeDto: StoresDto,

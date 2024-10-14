@@ -17,6 +17,9 @@ import { CategoryTiniesModule } from './modules/category-tinies/category-tinies.
 import { DiscountSettingsModule } from './modules/discount-settings/discount-settings.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { ProductResourcesModule } from './modules/product-resources/product-resources.module';
+import { ShippingSettingsModule } from './modules/shipping-settings/shipping-settings.module';
+import { PrefecturesModule } from './modules/prefectures/prefectures.module';
+import { StorePrefecturesModule } from './modules/store-prefectures/store-prefectures.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { ProductResourcesModule } from './modules/product-resources/product-reso
     DatabaseModule,
     MailerModule,
     ProductResourcesModule,
+    ShippingSettingsModule,
+    PrefecturesModule,
+    StorePrefecturesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteStoresResDto } from 'src/dto/delete-stores-res.dto';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 import { StoresDto } from 'src/dto/stores.dto';
 import { StoreEntity } from 'src/entities/stores.entity';
 import { Repository } from 'typeorm';
@@ -34,7 +34,7 @@ export class StoresService {
     return updatedStore;
   }
 
-  async deleteStore(id: string): Promise<DeleteStoresResDto> {
+  async deleteStore(id: string): Promise<DeleteItemResDto> {
     const result = await this.storesRepository.delete({ id });
     if (result.affected === 0) {
       throw new NotFoundException(`Store with ID "${id}" not found`);

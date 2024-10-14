@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ProductResourceEntity } from './product-resources.entity';
+import { StorePrefecturesEntity } from './store-prefectures.entity';
 
 @Entity('stores')
 export class StoreEntity extends BaseEntity {
@@ -55,4 +56,13 @@ export class StoreEntity extends BaseEntity {
     },
   )
   productResources: ProductResourceEntity[];
+
+  @OneToMany(
+    () => StorePrefecturesEntity,
+    (storePrefectures) => storePrefectures.store,
+    {
+      cascade: true,
+    },
+  )
+  storePrefectures: StorePrefecturesEntity[];
 }

@@ -15,9 +15,9 @@ import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 import { ProductCategoryResDto } from 'src/dto/product-category-res.dto';
-import { DeleteProductCategoryResDto } from 'src/dto/delete-product-category-res.dto';
 import { GetCategoryIdDto } from 'src/dto/get-categoryId.dto';
 import { ProductsResDto } from 'src/dto/products-res.dto';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('categoryTinies')
@@ -48,7 +48,7 @@ export class CategoryTiniesController {
   @ApiResponse({
     status: 201,
     description: 'Delete category for product successfully',
-    type: DeleteProductCategoryResDto,
+    type: DeleteItemResDto,
   })
   @ApiResponse({
     status: 401,

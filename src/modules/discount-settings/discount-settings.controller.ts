@@ -2,9 +2,9 @@ import {
   Body,
   Controller,
   Delete,
-  Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DiscountSettingsService } from './discount-settings.service';
@@ -16,12 +16,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
 import { DiscountSettingsDto } from 'src/dto/discount-settings.dto';
 import { DiscountSettingsResDto } from 'src/dto/discount-settings-res.dto';
 import { DiscountSettingsUpdateDto } from 'src/dto/discount-settings-update.dto';
-import { DiscountSettingsDeleteDto } from 'src/dto/discount-settings-delete.dto';
-import { DeleteDiscountSettingsResDto } from 'src/dto/delete-discount-settings-res.dto';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
+import { GetAccountDto } from 'src/dto/get-account.dto';
 
 @ApiBearerAuth()
 @ApiTags('discountSettings')
-@Controller('discountsettings')
+@Controller('discount_settings')
 export class DiscountSettingsController {
   constructor(
     private readonly discountSettingsService: DiscountSettingsService,
@@ -29,7 +29,7 @@ export class DiscountSettingsController {
 
   @ApiResponse({
     status: 201,
-    description: 'Post product successfully',
+    description: 'Post discount setting successfully',
     type: DiscountSettingsResDto,
   })
   @ApiResponse({
@@ -50,7 +50,7 @@ export class DiscountSettingsController {
 
   @ApiResponse({
     status: 201,
-    description: 'Post product successfully',
+    description: 'Update discount setting successfully',
     type: DiscountSettingsResDto,
   })
   @ApiResponse({
@@ -71,8 +71,8 @@ export class DiscountSettingsController {
 
   @ApiResponse({
     status: 201,
-    description: 'Delete category for product successfully',
-    type: DeleteDiscountSettingsResDto,
+    description: 'Delete discount setting successfully',
+    type: DeleteItemResDto,
   })
   @ApiResponse({
     status: 401,
@@ -81,12 +81,10 @@ export class DiscountSettingsController {
   @Roles(ValidRoles.Admin, ValidRoles.Editor)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('delete/:id')
+  @Delete('delete/item')
   deleteDiscountSettings(
-    @Param() discountSettingsDeleteDto: DiscountSettingsDeleteDto,
-  ): Promise<DeleteDiscountSettingsResDto> {
-    return this.discountSettingsService.deleteDiscountSettings(
-      discountSettingsDeleteDto,
-    );
+    @Query() { id }: GetAccountDto,
+  ): Promise<DeleteItemResDto> {
+    return this.discountSettingsService.deleteDiscountSettings(id);
   }
 }
