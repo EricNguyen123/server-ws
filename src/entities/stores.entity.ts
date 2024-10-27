@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { ProductResourceEntity } from './product-resources.entity';
 import { StorePrefecturesEntity } from './store-prefectures.entity';
+import { CartItemsEntity } from './cart-items.entity';
+import { BillGroupsEntity } from './bill-groups.entity';
 
 @Entity('stores')
 export class StoreEntity extends BaseEntity {
@@ -65,4 +67,14 @@ export class StoreEntity extends BaseEntity {
     },
   )
   storePrefectures: StorePrefecturesEntity[];
+
+  @OneToMany(() => CartItemsEntity, (cartItems) => cartItems.store, {
+    cascade: true,
+  })
+  cartItems: CartItemsEntity[];
+
+  @OneToMany(() => BillGroupsEntity, (billGroups) => billGroups.store, {
+    cascade: true,
+  })
+  billGroups: BillGroupsEntity[];
 }

@@ -106,6 +106,24 @@ export class StorePrefecturesService {
     return storePrefecture;
   }
 
+  async findByPrefecturesAndStore(
+    prefectureId: string,
+    storeId: string,
+  ): Promise<StorePrefecturesEntity> {
+    const storePrefecture = await this.storePrefecturesRepository.findOneOrFail(
+      {
+        where: { prefecture: { id: prefectureId }, store: { id: storeId } },
+        relations: ['store', 'prefecture'],
+      },
+    );
+
+    if (!storePrefecture) {
+      throw new NotFoundException('Store Prefecture not found');
+    }
+
+    return storePrefecture;
+  }
+
   async findOneById(id: string): Promise<StorePrefecturesEntity> {
     const storePrefecture = await this.storePrefecturesRepository.findOneOrFail(
       {

@@ -18,6 +18,7 @@ import { ProductCategoryResDto } from 'src/dto/product-category-res.dto';
 import { GetCategoryIdDto } from 'src/dto/get-categoryId.dto';
 import { ProductsResDto } from 'src/dto/products-res.dto';
 import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('categoryTinies')
@@ -77,9 +78,7 @@ export class CategoryTiniesController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get(':categotyId')
   getProducts(@Param() { categotyId }: GetCategoryIdDto) {
     return this.categoryTiniesService.findProductByCategoryId(categotyId);

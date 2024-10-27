@@ -92,4 +92,17 @@ export class PrefecturesService {
 
     return prefecture;
   }
+
+  async findOneByName(name: string): Promise<PrefecturesEntity> {
+    const prefecture = await this.prefecturesRepository.findOneOrFail({
+      where: { name },
+      relations: ['shippingSetting'],
+    });
+
+    if (!prefecture) {
+      throw new NotFoundException('Prefecture not found');
+    }
+
+    return prefecture;
+  }
 }

@@ -11,6 +11,10 @@ import { MediaItemsEntity } from './media_items.entity';
 import { CategoryTinyEntity } from './category-tinies.entity';
 import { DiscountSettingsEntity } from './discount-settings.entity';
 import { ProductResourceEntity } from './product-resources.entity';
+import { CampaignProductsEntity } from './campaign-products.entity';
+import { CartItemsEntity } from './cart-items.entity';
+import { ProductTypesEntity } from './product-types.entity';
+import { FavoritesEntity } from './favorites.entity';
 
 @Entity('products')
 export class ProductsEntity extends BaseEntity {
@@ -26,10 +30,10 @@ export class ProductsEntity extends BaseEntity {
   @Column('int')
   price: number;
 
-  @Column('int')
+  @Column('int', { unsigned: true })
   quantity: number;
 
-  @Column('int')
+  @Column('int', { unsigned: true })
   quantity_alert: number;
 
   @Column('int')
@@ -82,4 +86,28 @@ export class ProductsEntity extends BaseEntity {
     },
   )
   productResources: ProductResourceEntity[];
+
+  @OneToMany(
+    () => CampaignProductsEntity,
+    (campaignProducts) => campaignProducts.product,
+    {
+      cascade: true,
+    },
+  )
+  campaignProducts: CampaignProductsEntity[];
+
+  @OneToMany(() => CartItemsEntity, (cartItems) => cartItems.product, {
+    cascade: true,
+  })
+  cartItems: CartItemsEntity[];
+
+  @OneToMany(() => ProductTypesEntity, (productTypes) => productTypes.product, {
+    cascade: true,
+  })
+  productTypes: ProductTypesEntity[];
+
+  @OneToMany(() => FavoritesEntity, (favorites) => favorites.product, {
+    cascade: true,
+  })
+  favorites: FavoritesEntity[];
 }

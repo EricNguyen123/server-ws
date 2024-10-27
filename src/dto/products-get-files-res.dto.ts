@@ -4,6 +4,7 @@ import { Type } from 'class-transformer';
 import { MediaItemDto } from './media-items-res.dto';
 import { FileDto } from './files-res.dto';
 import { DiscountSettingsProductsDto } from './discount-settings-product.dto';
+import { CampaignProductsResDto } from './campaign-products-res.dto';
 
 export class ProductsGetFilesResResDto {
   @ApiProperty()
@@ -67,6 +68,11 @@ export class ProductsGetFilesResResDto {
   @ValidateNested({ each: true })
   @Type(() => DiscountSettingsProductsDto)
   discountSettings: DiscountSettingsProductsDto[];
+
+  @ApiProperty({ type: [CampaignProductsResDto] })
+  @ValidateNested({ each: true })
+  @Type(() => CampaignProductsResDto)
+  campaignProducts?: CampaignProductsResDto[];
 
   @ApiProperty({ type: [FileDto] })
   @ValidateNested({ each: true })

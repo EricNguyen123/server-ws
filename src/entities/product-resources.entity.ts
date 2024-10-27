@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ProductsEntity } from './products.entity';
 import { StoreEntity } from './stores.entity';
+import { ProductTypeResourcesEntity } from './product-type-resources.entity';
 
 @Entity('product_resources')
 export class ProductResourceEntity extends BaseEntity {
@@ -30,7 +32,7 @@ export class ProductResourceEntity extends BaseEntity {
   @Column()
   resource_type: string;
 
-  @Column('int')
+  @Column('int', { unsigned: true })
   quantity: number;
 
   @CreateDateColumn()
@@ -38,4 +40,13 @@ export class ProductResourceEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToMany(
+    () => ProductTypeResourcesEntity,
+    (productTypeResources) => productTypeResources.productResource,
+    {
+      cascade: true,
+    },
+  )
+  productTypeResources: ProductTypeResourcesEntity[];
 }

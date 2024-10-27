@@ -3,6 +3,7 @@ import { IsString, ValidateNested } from 'class-validator';
 import { MediaItemDto } from './media-items-res.dto';
 import { Type } from 'class-transformer';
 import { DiscountSettingsProductsDto } from './discount-settings-product.dto';
+import { CampaignProductsResDto } from './campaign-products-res.dto';
 
 export class ProductsResDto {
   @ApiProperty()
@@ -48,6 +49,11 @@ export class ProductsResDto {
   @ValidateNested({ each: true })
   @Type(() => DiscountSettingsProductsDto)
   discountSettings?: DiscountSettingsProductsDto[];
+
+  @ApiProperty({ type: () => [CampaignProductsResDto] })
+  @ValidateNested({ each: true })
+  @Type(() => CampaignProductsResDto)
+  campaignProducts?: CampaignProductsResDto[];
 
   @ApiProperty()
   createdDate?: Date;

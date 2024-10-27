@@ -22,6 +22,7 @@ import { PaginationDto } from 'src/dto/pagination.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
 import { ProductsGetFilesResResDto } from 'src/dto/products-get-files-res.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('products')
@@ -98,9 +99,7 @@ export class ProductsController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
   getProducts(): Promise<ProductsResDto[]> {
     return this.productsService.findAll();
@@ -115,9 +114,7 @@ export class ProductsController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('item')
   getProduct(@Query() { id }: GetAccountDto): Promise<ProductsResDto> {
     return this.productsService.findOneByProduct(id);

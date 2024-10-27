@@ -4,7 +4,6 @@ import { ProductsEntity } from 'src/entities/products.entity';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { CategoryTiniesModule } from '../category-tinies/category-tinies.module';
-import { CategoryTiniesService } from '../category-tinies/category-tinies.service';
 import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
@@ -14,7 +13,7 @@ import { CategoriesModule } from '../categories/categories.module';
     forwardRef(() => CategoriesModule),
   ],
   controllers: [ProductsController],
-  providers: [ProductsService, CategoryTiniesService],
+  providers: [ProductsService],
   exports: [TypeOrmModule.forFeature([ProductsEntity]), ProductsService],
 })
 export class ProductsModule {}

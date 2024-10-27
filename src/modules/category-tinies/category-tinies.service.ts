@@ -169,7 +169,13 @@ export class CategoryTiniesService {
     }
     const products = await this.categorytiniesRepository.find({
       where: { category: { id: categoryId } },
-      relations: ['product'],
+      relations: [
+        'product',
+        'product.mediaItems',
+        'product.mediaItems.activeStorageAttachments',
+        'product.mediaItems.activeStorageAttachments.activeStorageBlob',
+        'product.discountSettings',
+      ],
     });
     return products.map((categoryTiny) => categoryTiny.product);
   }

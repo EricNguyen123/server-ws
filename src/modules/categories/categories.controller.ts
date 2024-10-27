@@ -20,6 +20,7 @@ import { GetAccountDto } from 'src/dto/get-account.dto';
 import { CategoriesDto } from 'src/dto/categories.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('categories')
@@ -36,9 +37,7 @@ export class CategoriesController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
   getCategories(): Promise<CategoriesResDto[]> {
     return this.categoriesService.findAll();

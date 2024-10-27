@@ -6,9 +6,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CartItemsEntity } from './cart-items.entity';
+import { OrdersEntity } from './orders.entity';
+import { ShippingMakerManagersEntity } from './shipping-maker-managers.entity';
+import { FavoritesEntity } from './favorites.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -73,4 +78,34 @@ export class UserEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToMany(() => CartItemsEntity, (cartItems) => cartItems.user, {
+    cascade: true,
+  })
+  cartItems: CartItemsEntity[];
+
+  @OneToMany(() => OrdersEntity, (orders) => orders.user)
+  orders: OrdersEntity[];
+
+  @OneToMany(() => OrdersEntity, (ordersOrderer) => ordersOrderer.orderer, {
+    cascade: true,
+  })
+  ordersOrderer: OrdersEntity[];
+
+  @OneToMany(() => OrdersEntity, (ordersReceiver) => ordersReceiver.receiver)
+  ordersReceiver: OrdersEntity[];
+
+  @OneToMany(
+    () => ShippingMakerManagersEntity,
+    (shippingMakerManagers) => shippingMakerManagers.user,
+    {
+      cascade: true,
+    },
+  )
+  shippingMakerManagers: ShippingMakerManagersEntity[];
+
+  @OneToMany(() => FavoritesEntity, (favorites) => favorites.user, {
+    cascade: true,
+  })
+  favorites: FavoritesEntity[];
 }

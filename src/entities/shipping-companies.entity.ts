@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ShippingNoticesEntity } from './shipping-notices.entity';
 
 @Entity('shipping_companies')
 export class ShippingCompaniesEntity extends BaseEntity {
@@ -35,4 +37,13 @@ export class ShippingCompaniesEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToMany(
+    () => ShippingNoticesEntity,
+    (shippingNotices) => shippingNotices.shippingCompany,
+    {
+      cascade: true,
+    },
+  )
+  shippingNotices: ShippingNoticesEntity[];
 }

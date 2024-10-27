@@ -86,6 +86,8 @@ export class ProductsService {
           'mediaItems.activeStorageAttachments',
           'mediaItems.activeStorageAttachments.activeStorageBlob',
           'discountSettings',
+          'campaignProducts',
+          'campaignProducts.campaign',
         ],
       });
 
@@ -110,6 +112,8 @@ export class ProductsService {
         'mediaItems.activeStorageAttachments',
         'mediaItems.activeStorageAttachments.activeStorageBlob',
         'discountSettings',
+        'campaignProducts',
+        'campaignProducts.campaign',
       ],
     });
   }
@@ -121,6 +125,8 @@ export class ProductsService {
         'mediaItems.activeStorageAttachments',
         'mediaItems.activeStorageAttachments.activeStorageBlob',
         'discountSettings',
+        'campaignProducts',
+        'campaignProducts.campaign',
       ],
     });
   }
@@ -133,6 +139,8 @@ export class ProductsService {
         'mediaItems.activeStorageAttachments',
         'mediaItems.activeStorageAttachments.activeStorageBlob',
         'discountSettings',
+        'campaignProducts',
+        'campaignProducts.campaign',
       ],
     });
 
