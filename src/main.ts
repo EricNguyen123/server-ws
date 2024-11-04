@@ -32,7 +32,8 @@ async function bootstrap() {
   app.enableCors(corsOptions);
   app.useStaticAssets(join(__dirname, '..', 'uploads'));
 
-  await app.listen(8000);
+  const port = envs.port || 8000;
+  await app.listen(port);
 
   if (module.hot) {
     module.hot.accept();

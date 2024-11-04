@@ -24,6 +24,7 @@ interface EnvConfig {
   MAIL_PORT: number;
   MAIL_USERNAME: string;
   BCRYPT_SALT_ROUND: number;
+  PORT: number;
 }
 
 const envVarsSchema = joi
@@ -50,6 +51,7 @@ const envVarsSchema = joi
     MAIL_PORT: joi.number().required(),
     MAIL_USERNAME: joi.string().required(),
     BCRYPT_SALT_ROUND: joi.number().required(),
+    PORT: joi.number().required(),
   })
   .unknown(true);
 
@@ -84,4 +86,5 @@ export const envs = {
   mailPort: envVars.MAIL_PORT,
   mailUsername: envVars.MAIL_USERNAME,
   bcryptSaltRound: envVars.BCRYPT_SALT_ROUND,
+  port: envVars.PORT,
 };
