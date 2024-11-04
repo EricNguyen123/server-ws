@@ -25,3 +25,8 @@ http://localhost:8000
 ## access the path to use the document api
 
 http://localhost:8000/api
+
+## database operations
+
+npm run migration:generate src/databases/migrations/migrations
+npm run migration:run
