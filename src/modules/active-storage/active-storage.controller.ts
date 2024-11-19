@@ -91,6 +91,7 @@ export class ActiveStorageController {
     await this.activeStorageService.deleteFile(blobId);
     return {
       message: 'File deleted successfully',
+      status: 200,
     };
   }
 }

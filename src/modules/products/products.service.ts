@@ -7,11 +7,12 @@ import { PaginationDto } from 'src/dto/pagination.dto';
 import { ProductsPostDto } from 'src/dto/products-post.dto';
 import { ProductsResDto } from 'src/dto/products-res.dto';
 import { ProductsEntity } from 'src/entities/products.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductsService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(ProductsEntity)
     private readonly productsRepository: Repository<ProductsEntity>,
   ) {}
@@ -50,16 +51,27 @@ export class ProductsService {
   }
 
   async deleteProduct(id: string): Promise<DeleteUserResDto> {
-    const result = await this.productsRepository.delete(id);
+    return this.dataSource.transaction(async (manager) => {
+      const result = await manager.getRepository(ProductsEntity).delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException(`Product with ID "${id}" not found`);
+      }
+      return {
+        id: id,
+        status: 200,
+        message: 'Product deleted successfully',
+      };
+    });
+    // const result = await this.productsRepository.delete(id);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Product with ID "${id}" not found`);
-    }
-    return {
-      id: id,
-      status: 200,
-      message: 'Product deleted successfully',
-    };
+    // if (result.affected === 0) {
+    //   throw new NotFoundException(`Product with ID "${id}" not found`);
+    // }
+    // return {
+    //   id: id,
+    //   status: 200,
+    //   message: 'Product deleted successfully',
+    // };
   }
 
   async deleteProducts(data: GetAccountDto[]): Promise<DeleteUsersResDto> {

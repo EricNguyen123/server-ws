@@ -5,7 +5,7 @@ import { ActiveStorageAttachmentsEntity } from 'src/entities/active-storage-atta
 import { ActiveStorageBlobsEntity } from 'src/entities/active-storage-blobs.entity';
 import { MediaItemsEntity } from 'src/entities/media_items.entity';
 import { ProductsEntity } from 'src/entities/products.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { KeyTypes } from 'src/common/enums/key-types.enum';
 import * as fs from 'fs';
@@ -15,6 +15,7 @@ import { envs } from 'src/config/envs';
 @Injectable()
 export class ActiveStorageService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(ActiveStorageBlobsEntity)
     private activeStorageBlobsRepository: Repository<ActiveStorageBlobsEntity>,
     @InjectRepository(ActiveStorageAttachmentsEntity)
@@ -27,65 +28,155 @@ export class ActiveStorageService {
     private readonly bannersRepository: Repository<BannersEntity>,
   ) {}
 
+  // async uploadFile(file: Express.Multer.File, id: string, key: string) {
+  //   const useKey = this.isValidKeyType(key);
+  //   if (!useKey) {
+  //     throw new Error('Key not found');
+  //   }
+
+  //   let item;
+  //   if (useKey === KeyTypes.Product) {
+  //     item = await this.productsRepository.findOne({
+  //       where: { id: id },
+  //     });
+  //   } else if (useKey === KeyTypes.Banner) {
+  //     item = await this.bannersRepository.findOne({
+  //       where: { id: id },
+  //     });
+  //   }
+
+  //   if (!item) {
+  //     throw new Error('Item not found');
+  //   }
+
+  //   const filePath = path.join('./uploads', file.filename);
+  //   const fileBuffer = fs.readFileSync(filePath);
+  //   const checksum = crypto.createHash('md5').update(fileBuffer).digest('hex');
+
+  //   const blob = new ActiveStorageBlobsEntity();
+  //   blob.key = file.filename;
+  //   blob.filename = file.originalname;
+  //   blob.content_type = file.mimetype;
+  //   blob.byte_size = file.size;
+  //   blob.checksum = checksum;
+  //   blob.metadata = '{}';
+  //   await this.activeStorageBlobsRepository.save(blob);
+
+  //   const mediaItem = new MediaItemsEntity();
+  //   mediaItem.resource_type = key;
+  //   mediaItem.media_type = 1;
+  //   mediaItem.media_url = path.join('/uploads', file.filename);
+
+  //   if (useKey === KeyTypes.Product) {
+  //     mediaItem.product = item;
+  //   } else if (useKey === KeyTypes.Banner) {
+  //     mediaItem.banner = item;
+  //   }
+
+  //   await this.mediaItemsRepository.save(mediaItem);
+
+  //   const attachment = new ActiveStorageAttachmentsEntity();
+  //   attachment.name = key;
+  //   attachment.record_type = key;
+  //   attachment.activeStorageBlob = blob;
+  //   attachment.mediaItem = mediaItem;
+  //   await this.activeStorageAttachmentsRepository.save(attachment);
+
+  //   return {
+  //     message: 'File uploaded successfully',
+  //     blob,
+  //     mediaItem,
+  //   };
+  // }
+
   async uploadFile(file: Express.Multer.File, id: string, key: string) {
-    const useKey = this.isValidKeyType(key);
-    if (!useKey) {
-      throw new Error('Key not found');
-    }
-
-    let item;
-    if (useKey === KeyTypes.Product) {
-      item = await this.productsRepository.findOne({
-        where: { id: id },
-      });
-    } else if (useKey === KeyTypes.Banner) {
-      item = await this.bannersRepository.findOne({
-        where: { id: id },
-      });
-    }
-
-    if (!item) {
-      throw new Error('Item not found');
-    }
-
     const filePath = path.join('./uploads', file.filename);
-    const fileBuffer = fs.readFileSync(filePath);
-    const checksum = crypto.createHash('md5').update(fileBuffer).digest('hex');
+    try {
+      return this.dataSource.transaction(async (manager) => {
+        const useKey = this.isValidKeyType(key);
+        if (!useKey) {
+          throw new Error('Key not found');
+        }
 
-    const blob = new ActiveStorageBlobsEntity();
-    blob.key = file.filename;
-    blob.filename = file.originalname;
-    blob.content_type = file.mimetype;
-    blob.byte_size = file.size;
-    blob.checksum = checksum;
-    blob.metadata = '{}';
-    await this.activeStorageBlobsRepository.save(blob);
+        let item;
+        if (useKey === KeyTypes.Product) {
+          item = await manager
+            .getRepository(this.productsRepository.target)
+            .findOne({
+              where: { id: id },
+            });
+        } else if (useKey === KeyTypes.Banner) {
+          item = await manager
+            .getRepository(this.bannersRepository.target)
+            .findOne({
+              where: { id: id },
+            });
+        }
 
-    const mediaItem = new MediaItemsEntity();
-    mediaItem.resource_type = key;
-    mediaItem.media_type = 1;
-    mediaItem.media_url = path.join('/uploads', file.filename);
+        if (!item) {
+          throw new Error('Item not found');
+        }
 
-    if (useKey === KeyTypes.Product) {
-      mediaItem.product = item;
-    } else if (useKey === KeyTypes.Banner) {
-      mediaItem.banner = item;
+        const fileBuffer = fs.readFileSync(filePath);
+        const checksum = crypto
+          .createHash('md5')
+          .update(fileBuffer)
+          .digest('hex');
+
+        const blob = new ActiveStorageBlobsEntity();
+        blob.key = file.filename;
+        blob.filename = file.originalname;
+        blob.content_type = file.mimetype;
+        blob.byte_size = file.size;
+        blob.checksum = checksum;
+        blob.metadata = '{}';
+
+        await manager.getRepository(ActiveStorageBlobsEntity).save(blob);
+
+        const mediaItem = new MediaItemsEntity();
+        mediaItem.resource_type = key;
+        mediaItem.media_type = 1;
+        mediaItem.media_url = path.join('/uploads', file.filename);
+
+        if (useKey === KeyTypes.Product) {
+          mediaItem.product = item;
+        } else if (useKey === KeyTypes.Banner) {
+          mediaItem.banner = item;
+        }
+
+        await manager.getRepository(MediaItemsEntity).save(mediaItem);
+
+        const attachment = new ActiveStorageAttachmentsEntity();
+        attachment.name = key;
+        attachment.record_type = key;
+        attachment.activeStorageBlob = blob;
+        attachment.mediaItem = mediaItem;
+
+        await manager
+          .getRepository(ActiveStorageAttachmentsEntity)
+          .save(attachment);
+
+        return {
+          message: 'File uploaded successfully',
+          blob,
+          mediaItem,
+        };
+      });
+    } catch (error) {
+      console.error('Error during file upload:', error);
+
+      await this.deleteFileRollback(filePath);
+
+      throw new Error('File upload failed');
     }
+  }
 
-    await this.mediaItemsRepository.save(mediaItem);
-
-    const attachment = new ActiveStorageAttachmentsEntity();
-    attachment.name = key;
-    attachment.record_type = key;
-    attachment.activeStorageBlob = blob;
-    attachment.mediaItem = mediaItem;
-    await this.activeStorageAttachmentsRepository.save(attachment);
-
-    return {
-      message: 'File uploaded successfully',
-      blob,
-      mediaItem,
-    };
+  private async deleteFileRollback(filePath: string) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (err) {
+      console.error(`Failed to delete file at path: ${filePath}`, err);
+    }
   }
 
   async deleteFile(blobId: string): Promise<void> {
