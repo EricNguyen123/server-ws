@@ -74,7 +74,7 @@ export class AuthController {
 
     const token = encodeURIComponent(response.token);
     const email = encodeURIComponent(response.user.email);
-    res.redirect(`${envs.feUrl}?token=${token}&email=${email}`);
+    res.redirect(`${envs.feUrl}/en?token=${token}&email=${email}`);
   }
 
   @ApiResponse({
