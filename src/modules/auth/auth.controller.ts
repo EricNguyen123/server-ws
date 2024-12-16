@@ -24,6 +24,15 @@ import { UserResDto } from 'src/dto/user-res.dto';
 import { VerifyMailDto } from 'src/dto/verify-mail.dto';
 import { VerifyMailResDto } from 'src/dto/verify-mail-res.dto';
 import { envs } from 'src/config/envs';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ValidRoles } from 'src/common/enums/valid-roles.enum';
+import { RolesGuard } from './guards/roles/roles.guard';
+import { JwtAuthGuard } from './guards/jwt-guards/jwt-auth.guard';
+import { OTPtoEmailDto } from 'src/dto/OTPtoEmail.dto';
+import { OTPtoEmailResDto } from 'src/dto/OTPtoEmail-res.dto';
+import { VerifyOTPResDto } from 'src/dto/verifyOTP-res.dto';
+import { VerifyOTPDto } from 'src/dto/verifyOTP.dto';
+import { ChangeForgotPasswordDto } from 'src/dto/change-forgot-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -114,6 +123,9 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized',
   })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('update/password')
   updatePassword(@Body() changePasswordDto: ChangePasswordDto) {
     return this.authService.changePassword(changePasswordDto);
@@ -132,5 +144,49 @@ export class AuthController {
   async verifyMail(@Query() verifyMailDto: VerifyMailDto, @Res() res) {
     await this.authService.verifyMail(verifyMailDto);
     res.redirect(`${envs.feUrl}`);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Req OTP successfully',
+    type: OTPtoEmailResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Post('otp')
+  reqOTPtoEmail(@Body() data: OTPtoEmailDto) {
+    return this.authService.sendOtpToEmail(data.email);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'verify OTP successfully',
+    type: VerifyOTPResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Post('otp/verify')
+  verifyOTP(@Body() data: VerifyOTPDto) {
+    return this.authService.verifyOTP(data.otp, data.email);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully change password',
+    type: ChangePasswordResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Post('update/forgot_password')
+  updateForgotPassword(
+    @Body() changeForgotPasswordDto: ChangeForgotPasswordDto,
+  ) {
+    return this.authService.changeForgotPassword(changeForgotPasswordDto);
   }
 }

@@ -1,15 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginationDto } from 'src/dto/pagination.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { UserEntity } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from 'src/dto/register.dto';
 import { UserResDto } from 'src/dto/user-res.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { GetAccountDto } from 'src/dto/get-account.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
+import { SearchDto } from 'src/dto/search.dto';
+import { ValidRoles } from 'src/common/enums/valid-roles.enum';
+import { Status } from 'src/common/enums/status.enum';
+import { getRangeFromYesterdayToNow } from 'src/utils/date.util';
+import { StatisticalUsersResDto } from 'src/dto/statistical-users-res.dto';
 
 @Injectable()
 export class UserService {
@@ -135,32 +139,125 @@ export class UserService {
     return resUser;
   }
 
-  async findAllWithPagination(
-    paginationDto: PaginationDto,
-  ): Promise<UserEntity[]> {
-    const { offset, limit } = paginationDto;
+  async statisticalUsers(): Promise<StatisticalUsersResDto> {
+    const totalAllUsers = await this.usersRepository.count();
 
-    return await this.usersRepository.find({
-      skip: offset,
-      take: limit,
-      select: [
-        'id',
-        'name',
-        'email',
-        'role',
-        'status',
-        'zipcode',
-        'phone',
-        'prefecture',
-        'city',
-        'street',
-        'building',
-        'current_sign_in_at',
-        'last_sign_in_at',
-        'createdDate',
-        'updatedDate',
-      ],
+    const totalUsers = await this.usersRepository.count({
+      where: { role: ValidRoles.User },
     });
+
+    const totalEmployees = totalAllUsers - totalUsers;
+
+    const totalUsersNotActive = await this.usersRepository.count({
+      where: { status: Status.NotActive },
+    });
+
+    const { endOfYesterday, now } = getRangeFromYesterdayToNow();
+
+    const usersVisited = await this.usersRepository.count({
+      where: {
+        role: ValidRoles.User,
+        current_sign_in_at: Between(endOfYesterday, now),
+      },
+    });
+
+    const usersNewSubscribers = await this.usersRepository.count({
+      where: {
+        role: ValidRoles.User,
+        createdDate: Between(endOfYesterday, now),
+      },
+    });
+
+    return {
+      totalAllUsers,
+      totalUsers,
+      totalEmployees,
+      totalUsersNotActive,
+      usersVisited,
+      usersNewSubscribers,
+    };
+  }
+
+  async updateForgotPassword(
+    id: string,
+    newPassword: string,
+  ): Promise<UserDto | { status: number; message: string }> {
+    const user = await this.findOneById(id);
+    if (!user) throw new NotFoundException('User not found');
+
+    const salt = await bcrypt.genSalt();
+    user.encrypted_password = await bcrypt.hash(newPassword, salt);
+
+    const userUpdate = await this.usersRepository.save(user);
+    const resUser = await this.fillterAttributesUser(userUpdate);
+    return resUser;
+  }
+
+  async searchUsers(
+    searchDto: SearchDto,
+  ): Promise<{ users: UserEntity[]; totalUsers: number; currentPage: number }> {
+    const { keyword, offset, limit, status } = searchDto;
+
+    const query = this.usersRepository.createQueryBuilder('user');
+
+    if (keyword && keyword.trim() !== '') {
+      const likeKeyword = `%${keyword}%`;
+      query
+        .where('user.name LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.email LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.phone LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.city LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.prefecture LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.street LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.building LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        })
+        .orWhere('user.zipcode LIKE :keyword COLLATE utf8mb4_general_ci', {
+          keyword: likeKeyword,
+        });
+    }
+
+    if (Object.values(Status).includes(Number(status))) {
+      query.where('user.status = :status', { status });
+    }
+
+    query.skip(offset).take(limit);
+
+    query.select([
+      'user.id',
+      'user.name',
+      'user.email',
+      'user.role',
+      'user.status',
+      'user.zipcode',
+      'user.phone',
+      'user.prefecture',
+      'user.city',
+      'user.street',
+      'user.building',
+      'user.current_sign_in_at',
+      'user.last_sign_in_at',
+      'user.createdDate',
+      'user.updatedDate',
+    ]);
+
+    const totalUsers = await query.getCount();
+    const users = await query.getMany();
+    const currentPage = Math.ceil(offset / limit) + 1;
+
+    return { users, totalUsers, currentPage };
   }
 
   async findAll(): Promise<UserResDto[]> {
@@ -186,9 +283,14 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<UserEntity> {
-    const user = await this.usersRepository.findOne({ where: { email } });
+    try {
+      const user = await this.usersRepository.findOne({ where: { email } });
 
-    return user;
+      return user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return undefined;
+    }
   }
 
   async findOneByUser(id: string): Promise<UserEntity> {
@@ -212,12 +314,12 @@ export class UserService {
     }
   }
 
-  async findOneByTokens(tokens: string): Promise<UserEntity> {
+  async findOneByTokens(tokens: string): Promise<UserEntity | undefined> {
     try {
       return await this.usersRepository.findOneOrFail({ where: { tokens } });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new NotFoundException('User not found');
+      return undefined;
     }
   }
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsStrongPassword, ValidateIf } from 'class-validator';
 import { Status } from 'src/common/enums/status.enum';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
 
@@ -8,12 +8,11 @@ export class UserDto {
   name?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsEmail()
   email?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @ValidateIf((obj) => obj.encrypted_password !== undefined)
   @IsStrongPassword({
     minLength: 8,
     minNumbers: 1,

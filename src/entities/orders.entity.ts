@@ -26,12 +26,11 @@ export class OrdersEntity extends BaseEntity {
   @Column('varchar')
   receiver_type: string;
 
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.NotActive })
+  @Column({ type: 'varchar', default: OrderStatus.NotActive })
   order_status: OrderStatus;
 
   @Column({
-    type: 'enum',
-    enum: ShippingStatus,
+    type: 'varchar',
     default: ShippingStatus.WaitingForPickUp,
   })
   shipping_status: ShippingStatus;

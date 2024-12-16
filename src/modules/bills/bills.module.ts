@@ -9,6 +9,8 @@ import { StorePrefecturesModule } from '../store-prefectures/store-prefectures.m
 import { CampaignProductsModule } from '../campaign-products/campaign-products.module';
 import { BillGroupsModule } from '../bill-groups/bill-groups.module';
 import { BillItemsModule } from '../bill-items/bill-items.module';
+import { AuthModule } from '../auth/auth.module';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -19,9 +21,10 @@ import { BillItemsModule } from '../bill-items/bill-items.module';
     CampaignProductsModule,
     BillGroupsModule,
     BillItemsModule,
+    AuthModule,
   ],
   controllers: [BillsController],
-  providers: [BillsService],
+  providers: [BillsService, JwtAuthGuard],
   exports: [TypeOrmModule.forFeature([BillsEntity]), BillsService],
 })
 export class BillsModule {}

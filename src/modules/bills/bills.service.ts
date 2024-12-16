@@ -222,11 +222,13 @@ export class BillsService {
     return billId;
   }
 
-  async findAllWithPagination(
-    paginationDto: PaginationDto,
-  ): Promise<BillsEntity[]> {
+  async findAllWithPagination(paginationDto: PaginationDto): Promise<{
+    bills: BillsEntity[];
+    totalBills: number;
+    currentPage: number;
+  }> {
     const { offset, limit } = paginationDto;
-    return await this.billsRepository.find({
+    const bills = await this.billsRepository.find({
       skip: offset,
       take: limit,
       relations: [
@@ -253,5 +255,9 @@ export class BillsService {
         'orders.orderItems.shippingNotices.shippingCompany',
       ],
     });
+
+    const total = await this.billsRepository.count();
+
+    return { bills, totalBills: total, currentPage: offset / limit + 1 };
   }
 }

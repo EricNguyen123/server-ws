@@ -19,8 +19,7 @@ export class SizeTypesEntity extends BaseEntity {
   size_code: string;
 
   @Column({
-    type: 'enum',
-    enum: SizeTypes,
+    type: 'varchar',
     default: SizeTypes.Male,
   })
   size_type: SizeTypes;

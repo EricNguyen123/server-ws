@@ -111,12 +111,14 @@ export class ProductsService {
     }
   }
 
-  async findAllWithPagination(
-    paginationDto: PaginationDto,
-  ): Promise<ProductsEntity[]> {
+  async findAllWithPagination(paginationDto: PaginationDto): Promise<{
+    products: ProductsEntity[];
+    totalProducts: number;
+    currentPage: number;
+  }> {
     const { offset, limit } = paginationDto;
 
-    return await this.productsRepository.find({
+    const products = await this.productsRepository.find({
       skip: offset,
       take: limit,
       relations: [
@@ -128,6 +130,9 @@ export class ProductsService {
         'campaignProducts.campaign',
       ],
     });
+    const total = await this.productsRepository.count();
+
+    return { products, totalProducts: total, currentPage: offset / limit + 1 };
   }
 
   async findAll(): Promise<ProductsEntity[]> {

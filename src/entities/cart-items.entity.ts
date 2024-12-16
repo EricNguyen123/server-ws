@@ -25,8 +25,7 @@ export class CartItemsEntity extends BaseEntity {
   quantity: number;
 
   @Column({
-    type: 'enum',
-    enum: CartStatus,
+    type: 'varchar',
     default: CartStatus.AddCart,
   })
   status: CartStatus;

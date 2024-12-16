@@ -19,6 +19,7 @@ import { BillsResDto } from 'src/dto/bills-res.dto';
 import { GetAccountDto } from 'src/dto/get-account.dto';
 import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 import { PaginationDto } from 'src/dto/pagination.dto';
+import { BillsPaginationResDto } from 'src/dto/bills-pagination-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('bills')
@@ -101,7 +102,7 @@ export class BillsController {
   @ApiResponse({
     status: 201,
     description: 'Get bills successfully',
-    type: BillsResDto,
+    type: BillsPaginationResDto,
     isArray: true,
   })
   @ApiResponse({
@@ -112,7 +113,9 @@ export class BillsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('page')
-  getBillsPage(@Query() paginationDto: PaginationDto): Promise<BillsResDto[]> {
+  getBillsPage(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<BillsPaginationResDto> {
     return this.billsService.findAllWithPagination(paginationDto);
   }
 }

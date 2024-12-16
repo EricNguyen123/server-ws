@@ -10,6 +10,8 @@ import { ProductTypesModule } from '../product-types/product-types.module';
 import { SizeTypesModule } from '../size-types/size-types.module';
 import { ColorTypesModule } from '../color-types/color-types.module';
 import { UserModule } from '../user/user.module';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -21,9 +23,10 @@ import { UserModule } from '../user/user.module';
     SizeTypesModule,
     ColorTypesModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [CartItemsController],
-  providers: [CartItemsService],
+  providers: [CartItemsService, JwtAuthGuard],
   exports: [TypeOrmModule.forFeature([CartItemsEntity]), CartItemsService],
 })
 export class CartItemsModule {}

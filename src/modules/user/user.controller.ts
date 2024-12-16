@@ -20,10 +20,12 @@ import { PostNameDto } from 'src/dto/post-name.dto';
 import { PostEmailDto } from 'src/dto/post-email.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
-import { PaginationDto } from 'src/dto/pagination.dto';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ValidRoles } from 'src/common/enums/valid-roles.enum';
+import { UsersPaginationResDto } from 'src/dto/users-pagination-res.dto';
+import { SearchDto } from 'src/dto/search.dto';
+import { StatisticalUsersResDto } from 'src/dto/statistical-users-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -52,7 +54,7 @@ export class UserController {
   @ApiResponse({
     status: 201,
     description: 'Get users successfully',
-    type: UserResDto,
+    type: UsersPaginationResDto,
     isArray: true,
   })
   @ApiResponse({
@@ -62,9 +64,9 @@ export class UserController {
   @Roles(ValidRoles.Admin, ValidRoles.Editor)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get('page')
-  getUsersPage(@Query() paginationDto: PaginationDto): Promise<UserResDto[]> {
-    return this.usersService.findAllWithPagination(paginationDto);
+  @Get('search')
+  searchUsers(@Query() searchDto: SearchDto): Promise<UsersPaginationResDto> {
+    return this.usersService.searchUsers(searchDto);
   }
 
   @ApiResponse({
@@ -180,7 +182,7 @@ export class UserController {
 
   @ApiResponse({
     status: 201,
-    description: 'Delete user successfully',
+    description: 'Register user successfully',
     type: UserResDto,
   })
   @ApiResponse({
@@ -193,5 +195,22 @@ export class UserController {
   @Post('register/user')
   async registerUser(@Body() registerDto: RegisterDto): Promise<UserResDto> {
     return await this.usersService.registerUser(registerDto);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Get Statistical user successfully',
+    type: StatisticalUsersResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get('statistical_users')
+  async getStatisticalUsers(): Promise<StatisticalUsersResDto> {
+    return await this.usersService.statisticalUsers();
   }
 }

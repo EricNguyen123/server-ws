@@ -16,6 +16,8 @@ import { envs } from 'src/config/envs';
 import { VerifyMailDto } from 'src/dto/verify-mail.dto';
 import { MailerService } from '../mailer/mailer.service';
 import { Status } from 'src/common/enums/status.enum';
+import { generateNumericOtp } from 'src/utils/otp.util';
+import { ChangeForgotPasswordDto } from 'src/dto/change-forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -73,10 +75,8 @@ export class AuthService {
     }
 
     const token = this.getJwtToken(user.id);
-    const updateUser = await this.usersService.updateUser(user.id, {
-      tokens: token,
-      current_sign_in_at: new Date(),
-    });
+    await this.setBlacklistToken(user.id, token);
+    const updateUser = await this.updateToken(user.id, token);
     const resUser = await this.usersService.fillterAttributesUser(updateUser);
 
     return {
@@ -91,10 +91,8 @@ export class AuthService {
       throw new UnauthorizedException('Credentials not valid');
     }
     const token = this.getJwtToken(user.id);
-    const updateUser = await this.usersService.updateUser(user.id, {
-      tokens: token,
-      current_sign_in_at: new Date(),
-    });
+    await this.setBlacklistToken(user.id, token);
+    const updateUser = await this.updateToken(user.id, token);
     const resUser = await this.usersService.fillterAttributesUser(updateUser);
     return {
       user: resUser,
@@ -103,21 +101,21 @@ export class AuthService {
   }
 
   async logout(token: string): Promise<LogoutResDto> {
-    const decodedToken = this.jwtService.decode(token) as { exp: number };
-
-    if (!decodedToken || !decodedToken.exp) {
-      throw new UnauthorizedException('Invalid token');
-    }
-
-    const ttl = decodedToken.exp - Math.floor(Date.now() / 1000);
-
-    await this.redis.set(`blacklist:${token}`, 'true', 'EX', ttl);
+    const checkToken = await this.isTokenBlacklisted(token);
 
     const user = await this.usersService.findOneByTokens(token);
-    if (!user) {
+
+    if (!user && !checkToken) {
       throw new UnauthorizedException('User not found');
     }
-    const updateUser = await this.usersService.updateUser(user.id, {
+
+    if (!checkToken) {
+      await this.setBlacklistToken(user?.id, token);
+    }
+
+    const data = await this.getDataInBlackList(token);
+    const userId = user ? user?.id : data.userId;
+    const updateUser = await this.usersService.updateUser(userId, {
       tokens: null,
       last_sign_in_at: new Date(),
     });
@@ -177,9 +175,48 @@ export class AuthService {
     return await this.usersService.create(googleUser);
   }
 
+  async getCurrentToken(id: string) {
+    const user = await this.usersService.findOneById(id);
+    if (!user) throw new UnauthorizedException('User not found');
+    const token = user.tokens;
+    return token;
+  }
+
+  async updateToken(id: string, token: string) {
+    const updateUser = await this.usersService.updateUser(id, {
+      tokens: token,
+      current_sign_in_at: new Date(),
+    });
+    return updateUser;
+  }
+
   async isTokenBlacklisted(token: string): Promise<boolean> {
     const isBlacklisted = await this.redis.get(`blacklist:${token}`);
     return !!isBlacklisted;
+  }
+
+  async getDataInBlackList(
+    token: string,
+  ): Promise<{ userId: string; token: string }> {
+    const data = await this.redis.get(`blacklist:${token}`);
+    if (!data) throw new UnauthorizedException('Token not found');
+    return JSON.parse(data) as { userId: string; token: string };
+  }
+
+  async setBlacklistToken(userId: string, token: string) {
+    const decodedToken = this.jwtService.decode(token) as { exp: number };
+
+    if (!decodedToken || !decodedToken.exp) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    const ttl = decodedToken.exp - Math.floor(Date.now() / 1000);
+
+    await this.redis.set(
+      `blacklist:${token}`,
+      JSON.stringify({ userId, token }),
+      'EX',
+      ttl,
+    );
   }
 
   generateRandomPassword(length: number): string {
@@ -217,5 +254,151 @@ export class AuthService {
     } catch (err) {
       return { status: 500, message: err, success: false };
     }
+  }
+
+  async generateOtp(userId: string, size = envs.otpSize) {
+    const key = `reqOtp:${userId}`;
+    const ttl = await this.redis.ttl(key);
+
+    if (ttl === -2) {
+      const pattern = `resOtp:*`;
+      const keys = await this.redis.keys(pattern);
+      const otpCount = keys.filter(async (otpKey) => {
+        const data = await this.redis.get(otpKey);
+        const parsed = JSON.parse(data);
+        return parsed.userId === userId;
+      }).length;
+
+      if (otpCount > envs.otpLimit) {
+        const timeLimit = envs.otpTimeLimit;
+        await this.redis.set(key, '', 'EX', timeLimit);
+        return {
+          otp: null,
+          hashedToken: null,
+          timeOut: null,
+          timeLine: timeLimit,
+        };
+      }
+
+      const otp = generateNumericOtp(size);
+      const hashedToken = bcrypt.hashSync(otp, envs.bcryptSaltRound);
+      const initTTL = envs.otpTimeout;
+      await this.redis.set(
+        `resOtp:${hashedToken}`,
+        JSON.stringify({ userId, hashedToken }),
+        'EX',
+        initTTL,
+      );
+      const ttlOtp = await this.redis.ttl(`resOtp:${hashedToken}`);
+      return {
+        otp: otp,
+        hashedToken: hashedToken,
+        timeOut: ttlOtp,
+        timeLine: null,
+      };
+    } else if (ttl === -1) {
+      await this.redis.del(key);
+    } else {
+      return { otp: null, hashedToken: null, timeOut: null, timeLine: ttl };
+    }
+  }
+
+  async sendOtpToEmail(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      return {
+        status: 404,
+        timeOut: undefined,
+        timeLine: undefined,
+        message: 'Invalid email address',
+      };
+    }
+
+    const otp = await this.generateOtp(user.id);
+
+    if (otp.otp) {
+      const updateUser = await this.usersService.updateUser(user.id, {
+        tokens: otp.hashedToken,
+      });
+      if (!updateUser) {
+        return {
+          status: 405,
+          timeOut: undefined,
+          timeLine: undefined,
+          message: 'Invalid otp token',
+        };
+      }
+      this.mailService.sendMail({
+        from: { name: envs.appName, address: envs.mailFromAddress },
+        recipients: [{ name: user.name, address: email }],
+        subject: 'Welcome to WebShop',
+        html: `
+        <p>
+          <strong>Hi ${user.name}!</strong>
+          <span>Your OTP is <strong>${otp.otp}</strong>. <br/> Your verification code is valid for ${envs.otpTimeout / 60} minutes. Never share your OTP with anyone.</span>
+        </p>`,
+      });
+    } else {
+      return {
+        status: 201,
+        timeOut: undefined,
+        timeLine: otp.timeLine,
+        message: 'Failed to send OTP to your email',
+      };
+    }
+
+    return {
+      status: 200,
+      timeOut: otp.timeOut,
+      timeLine: undefined,
+      message: 'Success send OTP to your email',
+    };
+  }
+
+  async verifyOTP(otp: string, email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid otp');
+    }
+    const checkOTP = await this.redis.get(`resOtp:${user.tokens}`);
+    if (!checkOTP) {
+      await this.usersService.updateUser(user.id, {
+        tokens: null,
+      });
+      return {
+        status: 402,
+        userId: undefined,
+        message: 'OTP Expired',
+      };
+    }
+    const verify = await bcrypt.compare(otp, user.tokens);
+    if (!verify) {
+      return {
+        status: 401,
+        userId: undefined,
+        message: 'Invalid OTP',
+      };
+    }
+    await this.usersService.updateUser(user.id, {
+      tokens: null,
+    });
+    return {
+      status: 200,
+      message: 'OTP verified successfully',
+      userId: user.id,
+    };
+  }
+
+  async changeForgotPassword(
+    changeForgotPasswordDto: ChangeForgotPasswordDto,
+  ): Promise<ChangePasswordResDto> {
+    const { id, password } = changeForgotPasswordDto;
+
+    const user = await this.usersService.updateForgotPassword(id, password);
+
+    return {
+      user,
+    };
   }
 }

@@ -6,6 +6,8 @@ import { StorePrefecturesEntity } from 'src/entities/store-prefectures.entity';
 import { PrefecturesModule } from '../prefectures/prefectures.module';
 import { StoresModule } from '../stores/stores.module';
 import { ShippingSettingsModule } from '../shipping-settings/shipping-settings.module';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -13,9 +15,10 @@ import { ShippingSettingsModule } from '../shipping-settings/shipping-settings.m
     PrefecturesModule,
     StoresModule,
     ShippingSettingsModule,
+    AuthModule,
   ],
   controllers: [StorePrefecturesController],
-  providers: [StorePrefecturesService],
+  providers: [StorePrefecturesService, JwtAuthGuard],
   exports: [
     TypeOrmModule.forFeature([StorePrefecturesEntity]),
     StorePrefecturesService,

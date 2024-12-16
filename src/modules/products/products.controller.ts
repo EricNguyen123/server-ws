@@ -23,6 +23,7 @@ import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
 import { ProductsGetFilesResResDto } from 'src/dto/products-get-files-res.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ProductsPaginationResDto } from 'src/dto/products-pagination-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('products')
@@ -72,20 +73,18 @@ export class ProductsController {
   @ApiResponse({
     status: 201,
     description: 'Get products successfully',
-    type: ProductsResDto,
+    type: ProductsPaginationResDto,
     isArray: true,
   })
   @ApiResponse({
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('page')
   getProductsPage(
     @Query() paginationDto: PaginationDto,
-  ): Promise<ProductsResDto[]> {
+  ): Promise<ProductsPaginationResDto> {
     return this.productsService.findAllWithPagination(paginationDto);
   }
 

@@ -7,15 +7,23 @@ import { ProductsService } from '../products/products.service';
 import { ProductsModule } from '../products/products.module';
 import { StoresModule } from '../stores/stores.module';
 import { StoresService } from '../stores/stores.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductResourceEntity]),
     forwardRef(() => StoresModule),
     forwardRef(() => ProductsModule),
+    AuthModule,
   ],
   controllers: [ProductResourcesController],
-  providers: [ProductResourcesService, StoresService, ProductsService],
+  providers: [
+    ProductResourcesService,
+    StoresService,
+    ProductsService,
+    JwtAuthGuard,
+  ],
   exports: [
     TypeOrmModule.forFeature([ProductResourceEntity]),
     ProductResourcesService,

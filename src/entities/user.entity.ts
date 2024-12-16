@@ -25,8 +25,7 @@ export class UserEntity extends BaseEntity {
   email: string;
 
   @Column({
-    type: 'enum',
-    enum: ValidRoles,
+    type: 'varchar',
     default: ValidRoles.User,
   })
   role: ValidRoles;
@@ -55,7 +54,7 @@ export class UserEntity extends BaseEntity {
   @Column()
   encrypted_password: string;
 
-  @Column({ type: 'enum', enum: Status, default: Status.NotActive })
+  @Column({ type: 'varchar', default: Status.NotActive })
   status: Status;
 
   @Column({ default: null, nullable: true })

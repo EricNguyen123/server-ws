@@ -7,6 +7,8 @@ import { ActiveStorageAttachmentsEntity } from 'src/entities/active-storage-atta
 import { ProductsEntity } from 'src/entities/products.entity';
 import { MediaItemsEntity } from 'src/entities/media_items.entity';
 import { BannersEntity } from 'src/entities/banners.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -17,9 +19,10 @@ import { BannersEntity } from 'src/entities/banners.entity';
       ProductsEntity,
       BannersEntity,
     ]),
+    AuthModule,
   ],
   controllers: [ActiveStorageController],
-  providers: [ActiveStorageService],
+  providers: [ActiveStorageService, JwtAuthGuard],
   exports: [
     TypeOrmModule.forFeature([
       ActiveStorageBlobsEntity,

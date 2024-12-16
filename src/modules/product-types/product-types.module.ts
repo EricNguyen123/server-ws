@@ -6,6 +6,8 @@ import { ProductTypesEntity } from 'src/entities/product-types.entity';
 import { SizeTypesModule } from '../size-types/size-types.module';
 import { ColorTypesModule } from '../color-types/color-types.module';
 import { ProductsModule } from '../products/products.module';
+import { JwtAuthGuard } from '../auth/guards/jwt-guards/jwt-auth.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -13,9 +15,10 @@ import { ProductsModule } from '../products/products.module';
     SizeTypesModule,
     ColorTypesModule,
     ProductsModule,
+    AuthModule,
   ],
   controllers: [ProductTypesController],
-  providers: [ProductTypesService],
+  providers: [ProductTypesService, JwtAuthGuard],
   exports: [
     TypeOrmModule.forFeature([ProductTypesEntity]),
     ProductTypesService,

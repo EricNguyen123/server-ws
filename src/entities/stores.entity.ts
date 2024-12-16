@@ -41,7 +41,7 @@ export class StoreEntity extends BaseEntity {
   @Column({ default: null, nullable: true })
   building: string;
 
-  @Column({ type: 'enum', enum: Status, default: Status.NotActive })
+  @Column({ type: 'varchar', default: Status.NotActive })
   status: Status;
 
   @CreateDateColumn()

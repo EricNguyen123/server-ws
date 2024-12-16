@@ -25,6 +25,10 @@ interface EnvConfig {
   MAIL_USERNAME: string;
   BCRYPT_SALT_ROUND: number;
   PORT: number;
+  OTP_SIZE: number;
+  OTP_TIMEOUT: number;
+  OTP_TIME_LIMIT: number;
+  OTP_LIMIT: number;
 }
 
 const envVarsSchema = joi
@@ -52,6 +56,10 @@ const envVarsSchema = joi
     MAIL_USERNAME: joi.string().required(),
     BCRYPT_SALT_ROUND: joi.number().required(),
     PORT: joi.number().required(),
+    OTP_SIZE: joi.number().required(),
+    OTP_TIMEOUT: joi.number().required(),
+    OTP_TIME_LIMIT: joi.number().required(),
+    OTP_LIMIT: joi.number().required(),
   })
   .unknown(true);
 
@@ -87,4 +95,8 @@ export const envs = {
   mailUsername: envVars.MAIL_USERNAME,
   bcryptSaltRound: envVars.BCRYPT_SALT_ROUND,
   port: envVars.PORT,
+  otpSize: envVars.OTP_SIZE,
+  otpTimeout: envVars.OTP_TIMEOUT,
+  otpTimeLimit: envVars.OTP_TIME_LIMIT,
+  otpLimit: envVars.OTP_LIMIT,
 };
