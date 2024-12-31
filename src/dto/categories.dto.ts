@@ -6,4 +6,7 @@ export class CategoriesDto {
 
   @ApiProperty()
   parentCategoryId?: string | null;
+
+  @ApiProperty()
+  subCategoryIds?: string[];
 }

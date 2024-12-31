@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, ValidateNested } from 'class-validator';
 
 export class CategoriesResDto {
   @ApiProperty()
@@ -10,7 +11,12 @@ export class CategoriesResDto {
   name?: string;
 
   @ApiProperty()
-  parentCategoryId?: string | null;
+  parentCategory?: CategoriesResDto;
+
+  @ApiProperty({ type: [CategoriesResDto] })
+  @ValidateNested({ each: true })
+  @Type(() => CategoriesResDto)
+  subCategories?: CategoriesResDto[];
 
   @ApiProperty()
   createdDate?: Date;

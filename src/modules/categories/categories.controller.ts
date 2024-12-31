@@ -21,6 +21,7 @@ import { CategoriesDto } from 'src/dto/categories.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { CategoriesPaginationResDto } from 'src/dto/categories-pagination-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('categories')
@@ -46,7 +47,7 @@ export class CategoriesController {
   @ApiResponse({
     status: 201,
     description: 'Get categories successfully',
-    type: CategoriesResDto,
+    type: CategoriesPaginationResDto,
     isArray: true,
   })
   @ApiResponse({
@@ -59,25 +60,8 @@ export class CategoriesController {
   @Get('page')
   getCategoriesPage(
     @Query() paginationDto: PaginationDto,
-  ): Promise<CategoriesResDto[]> {
+  ): Promise<CategoriesPaginationResDto> {
     return this.categoriesService.findAllWithPagination(paginationDto);
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: 'Get item successfully',
-    type: CategoriesResDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Not found',
-  })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
-  @Get('item')
-  getCategory(@Query() { id }: GetAccountDto): Promise<CategoriesResDto> {
-    return this.categoriesService.findOneByCategory(id);
   }
 
   @ApiResponse({
