@@ -3,8 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -28,12 +28,15 @@ import { BannersPostDto } from 'src/dto/banners-post.dto';
 import { DeleteUserResDto } from 'src/dto/delete-user-res.dto';
 import { GetAccountDto } from 'src/dto/get-account.dto';
 import { DeleteUsersResDto } from 'src/dto/delete-users-res.dto';
-import { BannersGetFilesResResDto } from 'src/dto/banners-get-files-res.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/config/multer/multer.config';
 import { ActiveStorageService } from '../active-storage/active-storage.service';
 import { KeyTypes } from 'src/common/enums/key-types.enum';
 import { BannerUploadFileResDto } from 'src/dto/banner-upload-file-res.dto';
+import { Public } from 'src/common/decorators/public.decorator';
+import { PaginationDto } from 'src/dto/pagination.dto';
+import { BannersPaginationResDto } from 'src/dto/banners-paginations-res.dto';
+import { BannersGetFilesResResDto } from 'src/dto/banners-get-files-res.dto';
 
 @ApiBearerAuth()
 @ApiTags('banners')
@@ -54,11 +57,11 @@ export class BannersController {
     status: 401,
     description: 'Not found',
   })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @Public()
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get()
-  getBanners(@Body() bannersDto: BannersDto): Promise<BannersResDto[]> {
+  @Get('order')
+  getBanners(@Body() bannersDto: BannersDto) {
     return this.bannersService.findOrderBanners(bannersDto);
   }
 
@@ -111,27 +114,6 @@ export class BannersController {
   @Delete('delete/items')
   deleteBanners(@Body() dataDto: GetAccountDto[]): Promise<DeleteUsersResDto> {
     return this.bannersService.deleteBanners(dataDto);
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: 'Get files banner successfully',
-    type: BannersGetFilesResResDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Not found',
-  })
-  @Roles(ValidRoles.Admin, ValidRoles.Editor, ValidRoles.User)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
-  @Get(':id/files')
-  async getProductWithFiles(@Param() { id }: GetAccountDto) {
-    const result = await this.bannersService.findBannerWithFiles(id);
-    return {
-      banner: result.banner,
-      files: result.files,
-    };
   }
 
   @ApiResponse({
@@ -202,5 +184,61 @@ export class BannersController {
       banner: updateBanner,
       message: 'File uploaded successfully',
     };
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Get banners page successfully',
+    type: BannersPaginationResDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get('page')
+  getBannersPage(@Query() paginationDto: PaginationDto) {
+    return this.bannersService.findPaginations(paginationDto);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Get all banners successfully',
+    type: BannersGetFilesResResDto,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  getAllBanners() {
+    return this.bannersService.findAll();
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'Update banner successfully',
+    type: BannerUploadFileResDto,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not found',
+  })
+  @Roles(ValidRoles.Admin, ValidRoles.Editor)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Put('update')
+  updateBanner(
+    @Query() { id }: GetAccountDto,
+    @Body() bannersPostDto: BannersPostDto,
+  ) {
+    return this.bannersService.update(id, bannersPostDto);
   }
 }

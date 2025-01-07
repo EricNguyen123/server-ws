@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUrl } from 'class-validator';
+import { IsString, IsUrl, ValidateIf } from 'class-validator';
 
 export class BannersPostDto {
   @ApiProperty()
@@ -15,7 +15,8 @@ export class BannersPostDto {
   @ApiProperty()
   number_order: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @ValidateIf((obj) => obj.url !== undefined)
   @IsUrl()
-  url: string;
+  url?: string;
 }

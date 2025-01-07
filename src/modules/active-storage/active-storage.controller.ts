@@ -88,10 +88,6 @@ export class ActiveStorageController {
   @UseGuards(JwtAuthGuard)
   @Delete('delete/:blobId')
   async deleteFile(@Param('blobId') blobId: string) {
-    await this.activeStorageService.deleteFile(blobId);
-    return {
-      message: 'File deleted successfully',
-      status: 200,
-    };
+    return await this.activeStorageService.deleteFile(blobId);
   }
 }

@@ -11,6 +11,7 @@ import { KeyTypes } from 'src/common/enums/key-types.enum';
 import * as fs from 'fs';
 import { BannersEntity } from 'src/entities/banners.entity';
 import { envs } from 'src/config/envs';
+import { DeleteItemResDto } from 'src/dto/delete-item-res.dto';
 
 @Injectable()
 export class ActiveStorageService {
@@ -179,7 +180,7 @@ export class ActiveStorageService {
     }
   }
 
-  async deleteFile(blobId: string): Promise<void> {
+  async deleteFile(blobId: string): Promise<DeleteItemResDto> {
     const blob = await this.activeStorageBlobsRepository.findOne({
       where: { id: blobId },
     });
@@ -197,17 +198,34 @@ export class ActiveStorageService {
       relations: ['activeStorageBlob', 'mediaItem'],
     });
 
-    await this.activeStorageAttachmentsRepository.delete({
-      activeStorageBlob: blob,
-    });
+    const resDeleteAttachments =
+      await this.activeStorageAttachmentsRepository.delete({
+        activeStorageBlob: blob,
+      });
+    if (resDeleteAttachments.affected === 0) {
+      throw new NotFoundException('No attachments found for the given blob');
+    }
     const mediaItemIds = attachments
       .filter((attachment) => attachment.mediaItem)
       .map((attachment) => attachment.mediaItem.id);
 
     if (mediaItemIds.length > 0) {
-      await this.mediaItemsRepository.delete(mediaItemIds);
+      const resDeleteMedias =
+        await this.mediaItemsRepository.delete(mediaItemIds);
+      if (resDeleteMedias.affected === 0) {
+        throw new NotFoundException('No media items found for the given blob');
+      }
     }
-    await this.activeStorageBlobsRepository.delete({ id: blobId });
+    const resDeleteBlod = await this.activeStorageBlobsRepository.delete({
+      id: blobId,
+    });
+    if (resDeleteBlod.affected === 0) {
+      throw new NotFoundException('No blob found for the given ID');
+    }
+    return {
+      status: 200,
+      message: 'File deleted successfully',
+    };
   }
 
   getUploadedFileUrl(filename: string): string {
