@@ -53,6 +53,10 @@ services:
       - MAIL_PORT=${MAIL_PORT}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - BCRYPT_SALT_ROUND=${BCRYPT_SALT_ROUND}
+      - OTP_SIZE=${OTP_SIZE}
+      - OTP_TIMEOUT=${OTP_TIMEOUT}
+      - OTP_TIME_LIMIT=${OTP_TIME_LIMIT}
+      - OTP_LIMIT=${OTP_LIMIT}
     depends_on:
       - mysql
       - redis
